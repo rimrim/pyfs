@@ -29,7 +29,7 @@ _machine = machine()
 #  On OSX this can be provided by a number of different packages
 #  with slightly incompatible interfaces.
 if _system == 'Darwin':
-    _libfuse_path = find_library('fuse4x') or find_library('fuse')
+    _libfuse_path = find_library('fuse4x') or find_library('fuse') or find_library('libosxfuse')
 else:
     _libfuse_path = find_library('fuse')
 if not _libfuse_path:
