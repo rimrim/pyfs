@@ -25,7 +25,7 @@ class TestFSImportHook(unittest.TestCase):
         for ph in list(sys.path_hooks):
             if isinstance(ph, type) and issubclass(ph,FSImportHook):
                 sys.path_hooks.remove(ph)
-        for (k,v) in sys.modules.items():
+        for (k,v) in list(sys.modules.items()):
             if k.startswith("fsih_"):
                 del sys.modules[k]
             elif hasattr(v,"__loader__"):
@@ -64,22 +64,22 @@ class TestFSImportHook(unittest.TestCase):
         ih = FSImportHook(t)
         sys.meta_path.append(ih)
         try:
-            self.assertEquals(ih.find_module("fsih_hello"),ih)
-            self.assertEquals(ih.find_module("fsih_helo"),None)
-            self.assertEquals(ih.find_module("fsih_pkg"),ih)
-            self.assertEquals(ih.find_module("fsih_pkg.sub1"),ih)
-            self.assertEquals(ih.find_module("fsih_pkg.sub2"),ih)
-            self.assertEquals(ih.find_module("fsih_pkg.sub3"),None)
+            self.assertEqual(ih.find_module("fsih_hello"),ih)
+            self.assertEqual(ih.find_module("fsih_helo"),None)
+            self.assertEqual(ih.find_module("fsih_pkg"),ih)
+            self.assertEqual(ih.find_module("fsih_pkg.sub1"),ih)
+            self.assertEqual(ih.find_module("fsih_pkg.sub2"),ih)
+            self.assertEqual(ih.find_module("fsih_pkg.sub3"),None)
             m = ih.load_module("fsih_hello")
-            self.assertEquals(m.message,"hello world!")
+            self.assertEqual(m.message,"hello world!")
             self.assertRaises(ImportError,ih.load_module,"fsih_helo")
             ih.load_module("fsih_pkg")
             m = ih.load_module("fsih_pkg.sub1")
-            self.assertEquals(m.message,"hello world!")
-            self.assertEquals(m.a,42)
+            self.assertEqual(m.message,"hello world!")
+            self.assertEqual(m.a,42)
             m = ih.load_module("fsih_pkg.sub2")
-            self.assertEquals(m.message,"hello world!")
-            self.assertEquals(m.a,42 * 2)
+            self.assertEqual(m.message,"hello world!")
+            self.assertEqual(m.a,42 * 2)
             self.assertRaises(ImportError,ih.load_module,"fsih_pkg.sub3")
         finally:
             sys.meta_path.remove(ih)
@@ -88,7 +88,7 @@ class TestFSImportHook(unittest.TestCase):
     def _check_imports_are_working(self):
         try:
             import fsih_hello
-            self.assertEquals(fsih_hello.message,"hello world!")
+            self.assertEqual(fsih_hello.message,"hello world!")
             try:
                 import fsih_helo
             except ImportError:
@@ -97,11 +97,11 @@ class TestFSImportHook(unittest.TestCase):
                 assert False, "ImportError not raised"
             import fsih_pkg
             import fsih_pkg.sub1
-            self.assertEquals(fsih_pkg.sub1.message,"hello world!")
-            self.assertEquals(fsih_pkg.sub1.a,42)
+            self.assertEqual(fsih_pkg.sub1.message,"hello world!")
+            self.assertEqual(fsih_pkg.sub1.a,42)
             import fsih_pkg.sub2
-            self.assertEquals(fsih_pkg.sub2.message,"hello world!")
-            self.assertEquals(fsih_pkg.sub2.a,42 * 2)
+            self.assertEqual(fsih_pkg.sub2.message,"hello world!")
+            self.assertEqual(fsih_pkg.sub2.a,42 * 2)
             try:
                 import fsih_pkg.sub3
             except ImportError:
@@ -109,7 +109,7 @@ class TestFSImportHook(unittest.TestCase):
             else:
                 assert False, "ImportError not raised"
         finally:
-            for k in sys.modules.keys():
+            for k in list(sys.modules.keys()):
                 if k.startswith("fsih_"):
                     del sys.modules[k]
 

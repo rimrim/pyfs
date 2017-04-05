@@ -24,7 +24,7 @@ def fetchone(cursor):
     '''
     row = None
     try:
-        row = cursor.next()
+        row = next(cursor)
     except:
         pass
     return(row)
@@ -62,7 +62,7 @@ class SqliteFsFileBase(object):
     __repr__ = __str__
 
     def __unicode__(self):
-        return u"<SqliteFS File in %s %s>" % (self.fs, self.path)
+        return "<SqliteFS File in %s %s>" % (self.fs, self.path)
 
     def __del__(self):
         if not self.closed:
@@ -74,7 +74,7 @@ class SqliteFsFileBase(object):
     def __iter__(self):
         raise OperationFailedError('__iter__', self.path)
 
-    def next(self):
+    def __next__(self):
         raise OperationFailedError('next', self.path)
 
     def readline(self, *args, **kwargs):
@@ -139,8 +139,8 @@ class SqliteReadableFile(SqliteFsFileBase):
     def __iter__(self):
         return iter(self.real_stream)
 
-    def next(self):
-        return self.real_stream.next()
+    def __next__(self):
+        return next(self.real_stream)
 
     def readline(self, *args, **kwargs):
         return self.real_stream.readline(*args, **kwargs)
@@ -438,7 +438,7 @@ class SqliteFS(FS):
         get the directory information dictionary.
         '''
         info = dict()
-        info['st_mode'] = 0755
+        info['st_mode'] = 0o755
         return info
 
     def _get_file_info(self, path):
@@ -460,7 +460,7 @@ class SqliteFS(FS):
         info['created'] = row[2]
         info['last_modified'] = row[3]
         info['last_accessed'] = row[4]
-        info['st_mode'] = 0666
+        info['st_mode'] = 0o666
         return(info)
 
     def _isfile(self,path):
@@ -551,7 +551,7 @@ class SqliteFS(FS):
             pass
 
         if( absolute == False):
-            pathlist = map(lambda dpath:frombase(path,dpath), pathlist)
+            pathlist = [frombase(path,dpath) for dpath in pathlist]
 
         return(pathlist)
 

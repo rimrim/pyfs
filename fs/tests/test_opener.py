@@ -14,7 +14,7 @@ from fs import path
 class TestOpener(unittest.TestCase):
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(u"fstest_opener")
+        self.temp_dir = tempfile.mkdtemp("fstest_opener")
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

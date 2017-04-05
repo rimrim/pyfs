@@ -33,7 +33,7 @@ class SubrangeFile:
         return "<SubrangeFile: %s@%d size=%d>" % (self.name, self.startOffset, self.fileSize)
 
     def __unicode__(self):
-        return unicode(self.__str__())
+        return str(self.__str__())
 
     def size(self):
         return self.fileSize

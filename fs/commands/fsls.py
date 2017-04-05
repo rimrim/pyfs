@@ -37,7 +37,7 @@ List contents of [PATH]"""
         output = self.output
 
         if not args:
-            args = [u'.']
+            args = ['.']
 
         dir_paths = []
         file_paths = []
@@ -75,13 +75,13 @@ List contents of [PATH]"""
 
         if options.syspath:
             # Path without a syspath, just won't be displayed
-            dir_paths = filter(None, [fs.getsyspath(path, allow_none=True) for path in dir_paths])
-            file_paths = filter(None, [fs.getsyspath(path, allow_none=True) for path in file_paths])
+            dir_paths = [_f for _f in [fs.getsyspath(path, allow_none=True) for path in dir_paths] if _f]
+            file_paths = [_f for _f in [fs.getsyspath(path, allow_none=True) for path in file_paths] if _f]
 
         if options.url:
             # Path without a syspath, just won't be displayed
-            dir_paths = filter(None, [fs.getpathurl(path, allow_none=True) for path in dir_paths])
-            file_paths = filter(None, [fs.getpathurl(path, allow_none=True) for path in file_paths])
+            dir_paths = [_f for _f in [fs.getpathurl(path, allow_none=True) for path in dir_paths] if _f]
+            file_paths = [_f for _f in [fs.getpathurl(path, allow_none=True) for path in file_paths] if _f]
 
         dirs = frozenset(dir_paths)
         paths = sorted(dir_paths + file_paths, key=lambda p: p.lower())
@@ -95,7 +95,7 @@ List contents of [PATH]"""
         def columnize(paths, num_columns):
 
             col_height = (len(paths) + num_columns - 1) / num_columns
-            columns = [[] for _ in xrange(num_columns)]
+            columns = [[] for _ in range(num_columns)]
             col_no = 0
             col_pos = 0
             for path in paths:
@@ -128,11 +128,11 @@ List contents of [PATH]"""
 
         def condense_columns(columns):
             max_column_height = max([len(col) for col in columns])
-            lines = [[] for _ in xrange(max_column_height)]
+            lines = [[] for _ in range(max_column_height)]
             for column in columns:
                 for line, path in zip(lines, column):
                     line.append(path)
-            return '\n'.join(u'  '.join(line) for line in lines)
+            return '\n'.join('  '.join(line) for line in lines)
 
         if options.long:
             for path in paths:
@@ -151,7 +151,7 @@ List contents of [PATH]"""
             while num_cols:
                 col_height = (num_paths + num_cols - 1) // num_cols
                 line_width = 0
-                for col_no in xrange(num_cols):
+                for col_no in range(num_cols):
                     try:
                         col_width = max(path_widths[col_no * col_height: (col_no + 1) * col_height])
                     except ValueError:

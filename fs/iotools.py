@@ -1,5 +1,5 @@
-from __future__ import unicode_literals
-from __future__ import print_function
+
+
 
 from fs import SEEK_SET, SEEK_CUR, SEEK_END
 
@@ -178,7 +178,7 @@ def make_bytes_io(data, encoding=None, errors=None):
     if hasattr(data, 'mode') and 'b' in data.mode:
         # It's already a binary file
         return data
-    if not isinstance(data, basestring):
+    if not isinstance(data, str):
         # It's a file, but we don't know if its binary
         # TODO: Is there a better way than reading the entire file?
         data = data.read() or b''

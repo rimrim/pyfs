@@ -49,7 +49,7 @@ if xattr is not None:
 
         @convert_os_errors
         def listxattrs(self, path):
-            return xattr.xattr(self.getsyspath(path)).keys()
+            return list(xattr.xattr(self.getsyspath(path)).keys())
 
 else:
 

@@ -13,11 +13,11 @@ class TestMultiFS(unittest.TestCase):
         m2 = MemoryFS()
         multi_fs.addfs('m1', m1)
         multi_fs.addfs('m2', m2)
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
         multi_fs.close()
-        self.assert_(m1.closed)
-        self.assert_(m2.closed)
+        self.assertTrue(m1.closed)
+        self.assertTrue(m2.closed)
 
     def test_no_auto_close(self):
         """Test MultiFS auto close can be disables"""
@@ -26,11 +26,11 @@ class TestMultiFS(unittest.TestCase):
         m2 = MemoryFS()
         multi_fs.addfs('m1', m1)
         multi_fs.addfs('m2', m2)
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
         multi_fs.close()
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
 
 
     def test_priority(self):
@@ -45,7 +45,7 @@ class TestMultiFS(unittest.TestCase):
         multi_fs.addfs("m1", m1)
         multi_fs.addfs("m2", m2)
         multi_fs.addfs("m3", m3)
-        self.assert_(multi_fs.getcontents("name") == b("m3"))
+        self.assertTrue(multi_fs.getcontents("name") == b("m3"))
 
         m1 = MemoryFS()
         m2 = MemoryFS()
@@ -57,7 +57,7 @@ class TestMultiFS(unittest.TestCase):
         multi_fs.addfs("m1", m1)
         multi_fs.addfs("m2", m2, priority=10)
         multi_fs.addfs("m3", m3)
-        self.assert_(multi_fs.getcontents("name") == b("m2"))
+        self.assertTrue(multi_fs.getcontents("name") == b("m2"))
 
         m1 = MemoryFS()
         m2 = MemoryFS()
@@ -69,7 +69,7 @@ class TestMultiFS(unittest.TestCase):
         multi_fs.addfs("m1", m1)
         multi_fs.addfs("m2", m2, priority=10)
         multi_fs.addfs("m3", m3, priority=10)
-        self.assert_(multi_fs.getcontents("name") == b("m3"))
+        self.assertTrue(multi_fs.getcontents("name") == b("m3"))
 
         m1 = MemoryFS()
         m2 = MemoryFS()
@@ -81,5 +81,5 @@ class TestMultiFS(unittest.TestCase):
         multi_fs.addfs("m1", m1, priority=11)
         multi_fs.addfs("m2", m2, priority=10)
         multi_fs.addfs("m3", m3, priority=10)
-        self.assert_(multi_fs.getcontents("name") == b("m1"))
+        self.assertTrue(multi_fs.getcontents("name") == b("m1"))
 

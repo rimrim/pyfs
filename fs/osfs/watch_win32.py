@@ -10,7 +10,7 @@ import os
 import sys
 import errno
 import threading
-import Queue
+import queue
 import stat
 import struct
 import ctypes
@@ -226,7 +226,7 @@ class WatchedDirectory(object):
                                   ctypes.byref(self.result),len(self.result),
                                   self.recursive,self.flags,None,
                                   overlapped,None)
-        except WindowsError, e:
+        except WindowsError as e:
             self.error = e
             self.close()
 
@@ -262,7 +262,7 @@ class WatchThread(threading.Thread):
         self.watched_directories = {}
         self.ready = threading.Event()
         self._iocp = None
-        self._new_watches = Queue.Queue()
+        self._new_watches = queue.Queue()
 
     def close(self):
         if not self.closed:
@@ -383,11 +383,11 @@ class WatchThread(threading.Thread):
                                                            hash(w),0)
                                     w.post()
                                 w.ready.set()
-                        except Queue.Empty:
+                        except queue.Empty:
                             pass
         finally:
             self.ready.set()
-            for w in self.watched_directories.itervalues():
+            for w in self.watched_directories.values():
                 w.close()
             if self._iocp:
                 CloseHandle(self._iocp)

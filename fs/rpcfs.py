@@ -8,7 +8,7 @@ class from the :mod:`~fs.expose.xmlrpc` module.
 
 """
 
-import xmlrpclib
+import xmlrpc.client
 import socket
 import base64
 
@@ -28,11 +28,11 @@ def re_raise_faults(func):
     def wrapper(*args, **kwds):
         try:
             return func(*args, **kwds)
-        except (xmlrpclib.Fault), f:
+        except (xmlrpc.client.Fault) as f:
             #raise
             # Make sure it's in a form we can handle
 
-            print f.faultString
+            print(f.faultString)
             bits = f.faultString.split(" ")
             if bits[0] not in ["<type", "<class"]:
                 raise f
@@ -41,7 +41,7 @@ def re_raise_faults(func):
             cls = bits[0]
             msg = ">:".join(bits[1:])
             cls = cls.strip('\'')
-            print "-" + cls
+            print("-" + cls)
             cls = _object_by_name(cls)
             # Re-raise using the remainder of the fault code as message
             if cls:
@@ -50,7 +50,7 @@ def re_raise_faults(func):
                 else:
                     raise cls(msg)
             raise f
-        except socket.error, e:
+        except socket.error as e:
             raise RemoteConnectionError(str(e), details=e)
     return wrapper
 
@@ -126,9 +126,9 @@ class RPCFS(FS):
         kwds = dict(allow_none=True, use_datetime=True)
 
         if self._transport is not None:
-            proxy = xmlrpclib.ServerProxy(self.uri, self._transport, **kwds)
+            proxy = xmlrpc.client.ServerProxy(self.uri, self._transport, **kwds)
         else:
-            proxy = xmlrpclib.ServerProxy(self.uri, **kwds)
+            proxy = xmlrpc.client.ServerProxy(self.uri, **kwds)
 
         return ReRaiseFaults(proxy)
 
@@ -170,7 +170,7 @@ class RPCFS(FS):
             meta = self.proxy.getmeta(meta_name)
         else:
             meta = self.proxy.getmeta_default(meta_name, default)
-        if isinstance(meta, basestring):
+        if isinstance(meta, str):
             #  To allow transport of meta with invalid xml chars (like null)
             meta = self.encode_path(meta)
         return meta
@@ -185,7 +185,7 @@ class RPCFS(FS):
         # TODO: chunked transport of large files
         epath = self.encode_path(path)
         if "w" in mode:
-            self.proxy.set_contents(epath, xmlrpclib.Binary(b("")))
+            self.proxy.set_contents(epath, xmlrpc.client.Binary(b("")))
         if "r" in mode or "a" in mode or "+" in mode:
             try:
                 data = self.proxy.get_contents(epath, "rb").data
@@ -194,7 +194,7 @@ class RPCFS(FS):
                     raise ResourceNotFoundError(path)
                 if not self.isdir(dirname(path)):
                     raise ParentDirectoryMissingError(path)
-                self.proxy.set_contents(path, xmlrpclib.Binary(b("")))
+                self.proxy.set_contents(path, xmlrpc.client.Binary(b("")))
         else:
             data = b("")
         f = StringIO(data)
@@ -210,7 +210,7 @@ class RPCFS(FS):
             self._lock.acquire()
             try:
                 oldflush()
-                self.proxy.set_contents(epath, xmlrpclib.Binary(f.getvalue()))
+                self.proxy.set_contents(epath, xmlrpc.client.Binary(f.getvalue()))
             finally:
                 self._lock.release()
 

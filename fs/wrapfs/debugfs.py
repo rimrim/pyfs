@@ -66,7 +66,7 @@ class DebugFS(object):
             logger.log(level, message)
 
     def __parse_param(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             if len(value) > 60:
                 value = "%s ... (length %d)" % (repr(value[:60]), len(value))
             else:
@@ -75,7 +75,7 @@ class DebugFS(object):
             value = "%s (%d items)" % (repr(value[:3]), len(value))
         elif isinstance(value, dict):
             items = {}
-            for k, v in value.items()[:3]:
+            for k, v in list(value.items())[:3]:
                 items[k] = v
             value = "%s (%d items)" % (repr(items), len(value))
         else:
@@ -84,7 +84,7 @@ class DebugFS(object):
 
     def __parse_args(self, *arguments, **kwargs):
         args = [self.__parse_param(a) for a in arguments]
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             args.append("%s=%s" % (k, self.__parse_param(v)))
 
         args = ','.join(args)
@@ -105,10 +105,10 @@ class DebugFS(object):
 
         try:
             attr = getattr(self.__wrapped_fs, key)
-        except AttributeError, e:
+        except AttributeError as e:
             self.__log(DEBUG, "Asking for not implemented method %s" % key)
             raise e
-        except Exception, e:
+        except Exception as e:
             self.__log(CRITICAL, "Exception %s: %s" % \
                      (e.__class__.__name__, str(e)))
             raise e
@@ -122,19 +122,19 @@ class DebugFS(object):
             try:
                 value = attr(*args, **kwargs)
                 self.__report("Call method", key, value, *args, **kwargs)
-            except FSError, e:
+            except FSError as e:
                 self.__log(ERROR, "Call method %s%s -> Exception %s: %s" % \
                              (key, self.__parse_args(*args, **kwargs), \
                              e.__class__.__name__, str(e)))
                 (exc_type,exc_inst,tb) = sys.exc_info()
-                raise e, None, tb
-            except Exception, e:
+                raise e.with_traceback(tb)
+            except Exception as e:
                 self.__log(CRITICAL,
                          "Call method %s%s -> Non-FS exception %s: %s" %\
                          (key, self.__parse_args(*args, **kwargs), \
                          e.__class__.__name__, str(e)))
                 (exc_type,exc_inst,tb) = sys.exc_info()
-                raise e, None, tb
+                raise e.with_traceback(tb)
             return value
 
         if self.__verbose:

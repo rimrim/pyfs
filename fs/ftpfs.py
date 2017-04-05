@@ -37,9 +37,9 @@ if PY3:
     from six import BytesIO as StringIO
 else:
     try:
-        from cStringIO import StringIO
+        from io import StringIO
     except ImportError:
-        from StringIO import StringIO
+        from io import StringIO
 
 import time
 
@@ -221,10 +221,10 @@ class FTPListDataParser(object):
                 elif c == 'r':
                     result.try_retr = True
                 elif c == 's':
-                    result.size = long(buf[i+1:j])
+                    result.size = int(buf[i+1:j])
                 elif c == 'm':
                     result.mtime_type = MTIME_TYPE.LOCAL
-                    result.mtime = long(buf[i+1:j])
+                    result.mtime = int(buf[i+1:j])
                 elif c == 'i':
                     result.id_type = ID_TYPE.FULL
                     result.id = buf[i+1:j-i-1]
@@ -285,7 +285,7 @@ class FTPListDataParser(object):
 
                 elif state == 4: # getting tentative size
                     try:
-                        size = long(buf[i:j])
+                        size = int(buf[i:j])
                     except ValueError:
                         pass
                     state = 5
@@ -295,25 +295,25 @@ class FTPListDataParser(object):
                     if month >= 0:
                         state = 6
                     else:
-                        size = long(buf[i:j])
+                        size = int(buf[i:j])
 
                 elif state == 6: # have size and month
-                    mday = long(buf[i:j])
+                    mday = int(buf[i:j])
                     state = 7
 
                 elif state == 7: # have size, month, mday
                     if (j - i == 4) and (buf[i+1] == ':'):
-                        hour = long(buf[i])
-                        minute = long(buf[i+2:i+4])
+                        hour = int(buf[i])
+                        minute = int(buf[i+2:i+4])
                         result.mtime_type = MTIME_TYPE.REMOTE_MINUTE
                         result.mtime = self._guess_time(month, mday, hour, minute)
                     elif (j - i == 5) and (buf[i+2] == ':'):
-                        hour = long(buf[i:i+2])
-                        minute = long(buf[i+3:i+5])
+                        hour = int(buf[i:i+2])
+                        minute = int(buf[i+3:i+5])
                         result.mtime_type = MTIME_TYPE.REMOTE_MINUTE
                         result.mtime = self._guess_time(month, mday, hour, minute)
                     elif j - i >= 4:
-                        year = long(buf[i:j])
+                        year = int(buf[i:j])
                         result.mtime_type = MTIME_TYPE.REMOTE_DAY
                         result.mtime = self._get_mtime(year, month, mday)
                     else:
@@ -379,7 +379,7 @@ class FTPListDataParser(object):
             j = i
 
             j = buf.index('-', j)
-            mday = long(buf[i:j])
+            mday = int(buf[i:j])
 
             j = _skip(buf, j, '-')
             i = j
@@ -391,13 +391,13 @@ class FTPListDataParser(object):
             j = _skip(buf, j, '-')
             i = j
             j = buf.index(' ', j)
-            year = long(buf[i:j])
+            year = int(buf[i:j])
 
             j = _skip(buf, j, ' ')
             i = j
 
             j = buf.index(':', j)
-            hour = long(buf[i:j])
+            hour = int(buf[i:j])
             j = _skip(buf, j, ':')
             i = j
 
@@ -406,7 +406,7 @@ class FTPListDataParser(object):
                 if j == buflen:
                     raise IndexError # abort, abort!
 
-            minute = long(buf[i:j])
+            minute = int(buf[i:j])
 
             result.mtime_type = MTIME_TYPE.REMOTE_MINUTE
             result.mtime = self._get_mtime(year, month, mday, hour, minute)
@@ -430,17 +430,17 @@ class FTPListDataParser(object):
             result = FTPListData(buf)
 
             j = buf.index('-', j)
-            month = long(buf[i:j])
+            month = int(buf[i:j])
 
             j = _skip(buf, j, '-')
             i = j
             j = buf.index('-', j)
-            mday = long(buf[i:j])
+            mday = int(buf[i:j])
 
             j = _skip(buf, j, '-')
             i = j
             j = buf.index(' ', j)
-            year = long(buf[i:j])
+            year = int(buf[i:j])
             if year < 50:
                 year += 2000
             if year < 1000:
@@ -449,14 +449,14 @@ class FTPListDataParser(object):
             j = _skip(buf, j, ' ')
             i = j
             j = buf.index(':', j)
-            hour = long(buf[i:j])
+            hour = int(buf[i:j])
             j = _skip(buf, j, ':')
             i = j
             while not (buf[j] in 'AP'):
                 j += 1
                 if j == buflen:
                     raise IndexError
-            minute = long(buf[i:j])
+            minute = int(buf[i:j])
 
             if buf[j] == 'A':
                 j += 1
@@ -482,7 +482,7 @@ class FTPListDataParser(object):
                 i = j
                 j = buf.index(' ', j)
 
-                result.size = long(buf[i:j])
+                result.size = int(buf[i:j])
                 result.try_retr = True
 
             j = _skip(buf, j, ' ')
@@ -546,10 +546,10 @@ class FTPMlstDataParser(object):
                                                      int(factvalue[12:14]),
                                                      0, 0, 0))
                 elif factname == 'size':
-                    result.size = long(factvalue)
+                    result.size = int(factvalue)
                 elif factname == 'sizd':
                     # some FTP servers report directory size with sizd
-                    result.size = long(factvalue)
+                    result.size = int(factvalue)
                 elif factname == 'type':
                     if factvalue.lower() == 'file':
                         result.try_retr = True
@@ -605,7 +605,7 @@ def fileftperrors(f):
         try:
             try:
                 ret = f(self, *args, **kwargs)
-            except Exception, e:
+            except Exception as e:
                 self.ftpfs._translate_exception(args[0] if args else '', e)
         finally:
             self._lock.release()
@@ -795,16 +795,16 @@ class _FTPFile(object):
                 self.conn.close()
                 self.conn = None
                 self.ftp.voidresp()
-            except error_temp, error_perm:
+            except error_temp as error_perm:
                 pass
         if self.ftp is not None:
             try:
                 self.ftp.close()
-            except error_temp, error_perm:
+            except error_temp as error_perm:
                 pass
         self.closed = True
 
-    def next(self):
+    def __next__(self):
         return self.readline()
 
     def readline(self, size=None):
@@ -823,7 +823,7 @@ def ftperrors(f):
             try:
                 try:
                     ret = f(self, *args, **kwargs)
-                except Exception, e:
+                except Exception as e:
                     self._translate_exception(args[0] if args else '', e)
             finally:
                 self._leave_dircache()
@@ -834,7 +834,7 @@ def ftperrors(f):
 
 
 def _encode(s):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode('utf-8')
     return s
 
@@ -956,7 +956,7 @@ class FTPFS(FS):
             return features
 
         def on_line(line):
-            if not isinstance(line, unicode):
+            if not isinstance(line, str):
                 line = line.decode('utf-8')
             info = parse_ftp_list_line(line, self.use_mlst)
             if info:
@@ -986,7 +986,7 @@ class FTPFS(FS):
                     else: # Matrix FTP server has bug
                         on_line(list_line)
                 # if it's a dir, then we can send a MLSD
-                if dirlist[dirlist.keys()[0]]['try_cwd']:
+                if dirlist[list(dirlist.keys())[0]]['try_cwd']:
                     dirlist = {}
                     self.ftp.retrlines("MLSD " + encoded_path, on_line)
             else:
@@ -996,11 +996,11 @@ class FTPFS(FS):
         self.dircache[path] = dirlist
 
         def is_symlink(info):
-            return info['try_retr'] and info['try_cwd'] and info.has_key('target')
+            return info['try_retr'] and info['try_cwd'] and 'target' in info
 
         def resolve_symlink(linkpath):
             linkinfo = self.getinfo(linkpath)
-            if not linkinfo.has_key('resolved'):
+            if 'resolved' not in linkinfo:
                 linkinfo['resolved'] = linkpath
             if is_symlink(linkinfo):
                 target = linkinfo['target']
@@ -1036,7 +1036,7 @@ class FTPFS(FS):
         else:
             dircache = self.dircache
             paths = [normpath(abspath(path)) for path in paths]
-            for cached_path in dircache.keys():
+            for cached_path in list(dircache.keys()):
                 for path in paths:
                     if isbase(cached_path, path):
                         dircache.pop(cached_path, None)
@@ -1083,7 +1083,7 @@ class FTPFS(FS):
             else:
                 ftp.connect(self.host, self.port, self.timeout)
             ftp.login(self.user, self.passwd, self.acct)
-        except socket_error, e:
+        except socket_error as e:
             raise RemoteConnectionError(str(e), details=e)
         return ftp
 
@@ -1104,7 +1104,7 @@ class FTPFS(FS):
         return '<FTPFS %s>' % self.host
 
     def __unicode__(self):
-        return u'<FTPFS %s>' % self.host
+        return '<FTPFS %s>' % self.host
 
     @convert_os_errors
     def _translate_exception(self, path, exception):
@@ -1225,7 +1225,7 @@ class FTPFS(FS):
             raise ResourceNotFoundError(path)
         if not self.isdir(path):
             raise ResourceInvalidError(path)
-        paths = self._readdir(path).keys()
+        paths = list(self._readdir(path).keys())
 
         return self._listdir_helper(path, paths, wildcard, full, absolute, dirs_only, files_only)
 
@@ -1266,7 +1266,7 @@ class FTPFS(FS):
                     self.ftp.mkd(_encode(path))
                 except error_reply:
                     return
-                except error_perm, e:
+                except error_perm as e:
                     if recursive or allow_recreate:
                         return
                     if str(e).split(' ', 1)[0]=='550':
@@ -1337,7 +1337,7 @@ class FTPFS(FS):
         try:
             self.refresh_dircache(dirname(src), dirname(dst))
             self.ftp.rename(_encode(src), _encode(dst))
-        except error_perm, exception:
+        except error_perm as exception:
             code, message = str(exception).split(' ', 1)
             if code == "550":
                 if not self.exists(dirname(dst)):

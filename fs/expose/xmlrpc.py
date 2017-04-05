@@ -15,8 +15,8 @@ an FS object, which can then be exposed using whatever server you choose
 
 """
 
-import xmlrpclib
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+import xmlrpc.client
+from xmlrpc.server import SimpleXMLRPCServer
 from datetime import datetime
 import base64
 
@@ -61,13 +61,13 @@ class RPCFSInterface(object):
 
     def getmeta(self, meta_name):
         meta = self.fs.getmeta(meta_name)
-        if isinstance(meta, basestring):
+        if isinstance(meta, str):
             meta = self.decode_path(meta)
         return meta
 
     def getmeta_default(self, meta_name, default):
         meta = self.fs.getmeta(meta_name, default)
-        if isinstance(meta, basestring):
+        if isinstance(meta, str):
             meta = self.decode_path(meta)
         return meta
 
@@ -77,7 +77,7 @@ class RPCFSInterface(object):
     def get_contents(self, path, mode="rb"):
         path = self.decode_path(path)
         data = self.fs.getcontents(path, mode)
-        return xmlrpclib.Binary(data)
+        return xmlrpc.client.Binary(data)
 
     def set_contents(self, path, data):
         path = self.decode_path(path)
@@ -119,16 +119,16 @@ class RPCFSInterface(object):
 
     def settimes(self, path, accessed_time, modified_time):
         path = self.decode_path(path)
-        if isinstance(accessed_time, xmlrpclib.DateTime):
+        if isinstance(accessed_time, xmlrpc.client.DateTime):
             accessed_time = datetime.strptime(accessed_time.value, "%Y%m%dT%H:%M:%S")
-        if isinstance(modified_time, xmlrpclib.DateTime):
+        if isinstance(modified_time, xmlrpc.client.DateTime):
             modified_time = datetime.strptime(modified_time.value, "%Y%m%dT%H:%M:%S")
         return self.fs.settimes(path, accessed_time, modified_time)
 
     def getinfo(self, path):
         path = self.decode_path(path)
         info = self.fs.getinfo(path)
-        info = dict((k, v) for k, v in info.iteritems()
+        info = dict((k, v) for k, v in info.items()
                     if k in self._allowed_info)
         return info
 

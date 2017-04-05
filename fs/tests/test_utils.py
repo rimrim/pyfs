@@ -16,11 +16,11 @@ class TestUtils(unittest.TestCase):
         fs.setcontents("foo/bar/fruit", b("apple"))
 
     def _check_fs(self, fs):
-        self.assert_(fs.isfile("f1"))
-        self.assert_(fs.isfile("f2"))
-        self.assert_(fs.isfile("f3"))
-        self.assert_(fs.isdir("foo/bar"))
-        self.assert_(fs.isfile("foo/bar/fruit"))
+        self.assertTrue(fs.isfile("f1"))
+        self.assertTrue(fs.isfile("f2"))
+        self.assertTrue(fs.isfile("f3"))
+        self.assertTrue(fs.isdir("foo/bar"))
+        self.assertTrue(fs.isfile("foo/bar/fruit"))
         self.assertEqual(fs.getcontents("f1", "rb"), b("file 1"))
         self.assertEqual(fs.getcontents("f2", "rb"), b("file 2"))
         self.assertEqual(fs.getcontents("f3", "rb"), b("file 3"))
@@ -61,7 +61,7 @@ class TestUtils(unittest.TestCase):
         fs1sub = fs1.makeopendir("from")
         self._make_fs(fs1sub)
         utils.movedir((fs1, "from"), (fs2, "copy"))
-        self.assert_(not fs1.exists("from"))
+        self.assertTrue(not fs1.exists("from"))
         self._check_fs(fs2.opendir("copy"))
 
         fs1 = TempFS()
@@ -69,7 +69,7 @@ class TestUtils(unittest.TestCase):
         fs1sub = fs1.makeopendir("from")
         self._make_fs(fs1sub)
         utils.movedir((fs1, "from"), (fs2, "copy"))
-        self.assert_(not fs1.exists("from"))
+        self.assertTrue(not fs1.exists("from"))
         self._check_fs(fs2.opendir("copy"))
 
     def test_movedir_root(self):
@@ -79,7 +79,7 @@ class TestUtils(unittest.TestCase):
         fs1sub = fs1.makeopendir("from")
         self._make_fs(fs1sub)
         utils.movedir((fs1, "from"), fs2)
-        self.assert_(not fs1.exists("from"))
+        self.assertTrue(not fs1.exists("from"))
         self._check_fs(fs2)
 
         fs1 = TempFS()
@@ -87,7 +87,7 @@ class TestUtils(unittest.TestCase):
         fs1sub = fs1.makeopendir("from")
         self._make_fs(fs1sub)
         utils.movedir((fs1, "from"), fs2)
-        self.assert_(not fs1.exists("from"))
+        self.assertTrue(not fs1.exists("from"))
         self._check_fs(fs2)
 
     def test_remove_all(self):
@@ -101,15 +101,15 @@ class TestUtils(unittest.TestCase):
         fs.setcontents("foo/baz", b("baz"))
 
         utils.remove_all(fs, "foo/bar")
-        self.assert_(not fs.exists("foo/bar/fruit"))
-        self.assert_(fs.exists("foo/bar"))
-        self.assert_(fs.exists("foo/baz"))
+        self.assertTrue(not fs.exists("foo/bar/fruit"))
+        self.assertTrue(fs.exists("foo/bar"))
+        self.assertTrue(fs.exists("foo/baz"))
         utils.remove_all(fs,  "")
-        self.assert_(not fs.exists("foo/bar/fruit"))
-        self.assert_(not fs.exists("foo/bar/baz"))
-        self.assert_(not fs.exists("foo/baz"))
-        self.assert_(not fs.exists("foo"))
-        self.assert_(not fs.exists("f1"))
-        self.assert_(fs.isdirempty('/'))
+        self.assertTrue(not fs.exists("foo/bar/fruit"))
+        self.assertTrue(not fs.exists("foo/bar/baz"))
+        self.assertTrue(not fs.exists("foo/baz"))
+        self.assertTrue(not fs.exists("foo"))
+        self.assertTrue(not fs.exists("f1"))
+        self.assertTrue(fs.isdirempty('/'))
 
 

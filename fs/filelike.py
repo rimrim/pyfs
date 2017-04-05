@@ -52,9 +52,9 @@ if PY3:
     from six import BytesIO as _StringIO
 else:
     try:
-        from cStringIO import StringIO as _StringIO
+        from io import StringIO as _StringIO
     except ImportError:
-        from StringIO import StringIO as _StringIO
+        from io import StringIO as _StringIO
 
 
 class FileLikeBase(object):
@@ -305,7 +305,7 @@ class FileLikeBase(object):
         self.close()
         return False
 
-    def next(self):
+    def __next__(self):
         """next() method complying with the iterator protocol.
 
         File-like objects are their own iterators, with each call to

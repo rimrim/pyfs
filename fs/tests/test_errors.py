@@ -29,4 +29,4 @@ class TestFSError(unittest.TestCase):
 
     def test_unicode_representation_of_error_with_non_ascii_characters(self):
         path_error = PathError('/Shïrê/Frødø')
-        _ = unicode(path_error)
+        _ = str(path_error)

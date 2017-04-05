@@ -12,7 +12,7 @@ For more information regarding implementing a working PyFilesystem interface, se
 
 """
 
-from __future__ import with_statement
+
 
 __all__ = ['DummyLock',
            'silence_fserrors',
@@ -109,7 +109,7 @@ class NullFile(object):
     def flush(self):
         pass
 
-    def next(self):
+    def __next__(self):
         raise StopIteration
 
     def readline(self, *args, **kwargs):
@@ -900,7 +900,7 @@ class FS(object):
                                   chunk_size=1024 * 64,
                                   progress_callback=progress_callback,
                                   finished_callback=finished_callback)
-            except Exception, e:
+            except Exception as e:
                 if error_callback is not None:
                     error_callback(e)
             finally:
@@ -1156,7 +1156,7 @@ class FS(object):
     def _shutil_copyfile(cls, src_syspath, dst_syspath):
         try:
             shutil.copyfile(src_syspath, dst_syspath)
-        except IOError, e:
+        except IOError as e:
             #  shutil reports ENOENT when a parent directory is missing
             if getattr(e, "errno", None) == errno.ENOENT:
                 if not os.path.exists(dirname(dst_syspath)):

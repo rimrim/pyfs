@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 
 from fs import iotools
 
@@ -7,9 +7,9 @@ import unittest
 from os.path import dirname, join, abspath
 
 try:
-    unicode
+    str
 except NameError:
-    unicode = str
+    str = str
 
 
 class OpenFilelike(object):
@@ -37,20 +37,20 @@ class TestIOTools(unittest.TestCase):
         """Test make_stream"""
         with self.get_bin_file() as f:
             text = f.read()
-            self.assert_(isinstance(text, bytes))
+            self.assertTrue(isinstance(text, bytes))
 
         with self.get_bin_file() as f:
             with iotools.make_stream("data/UTF-8-demo.txt", f, 'rt') as f2:
                 text = f2.read()
-                self.assert_(isinstance(text, unicode))
+                self.assertTrue(isinstance(text, str))
 
     def test_decorator(self):
         """Test filelike_to_stream decorator"""
         o = OpenFilelike(self.get_bin_file)
         with o.open('file', 'rb') as f:
             text = f.read()
-            self.assert_(isinstance(text, bytes))
+            self.assertTrue(isinstance(text, bytes))
 
         with o.open('file', 'rt') as f:
             text = f.read()
-            self.assert_(isinstance(text, unicode))
+            self.assertTrue(isinstance(text, str))

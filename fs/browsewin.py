@@ -24,7 +24,7 @@ class InfoFrame(wx.Frame):
 
         self.SetTitle("FS Object info - %s (%s)" % (path, desc))
 
-        keys = info.keys()
+        keys = list(info.keys())
         keys.sort()
 
         self.list_ctrl = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
@@ -36,7 +36,7 @@ class InfoFrame(wx.Frame):
         self.list_ctrl.SetColumnWidth(1, 300)
 
         for key in sorted(keys, key=lambda k:k.lower()):
-            self.list_ctrl.Append((key, unicode(info.get(key))))
+            self.list_ctrl.Append((key, str(info.get(key))))
 
         self.Center()
 
@@ -50,7 +50,7 @@ class BrowseFrame(wx.Frame):
 
         self.fs = fs
         self.hide_dotfiles = hide_dotfiles
-        self.SetTitle("FS Browser - " + unicode(fs))
+        self.SetTitle("FS Browser - " + str(fs))
 
         self.tree = wx.gizmos.TreeListCtrl(self, -1, style=wx.TR_DEFAULT_STYLE | wx.TR_HIDE_ROOT)
 
@@ -105,7 +105,7 @@ class BrowseFrame(wx.Frame):
         try:
             paths = ( [(True, p) for p in self.fs.listdir(path, absolute=True, dirs_only=True)] +
                       [(False, p) for p in self.fs.listdir(path, absolute=True, files_only=True)] )
-        except FSError, e:
+        except FSError as e:
             msg = "Failed to get directory listing for %s\n\nThe following error was reported:\n\n%s" % (path, e)
             wx.MessageDialog(self, msg, "Error listing directory", wx.OK).ShowModal()
             paths = []
@@ -194,6 +194,6 @@ def browse(fs, hide_dotfiles=False):
 
 
 if __name__ == "__main__":
-    from osfs import OSFS
+    from .osfs import OSFS
     home_fs = OSFS("~/")
     browse(home_fs, True)

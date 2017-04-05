@@ -57,19 +57,19 @@ class FSError(Exception):
 
     def __str__(self):
         keys = {}
-        for k,v in self.__dict__.iteritems():
-            if isinstance(v,unicode):
+        for k,v in self.__dict__.items():
+            if isinstance(v,str):
                 v = v.encode(sys.getfilesystemencoding())
             keys[k] = v
         return str(self.msg % keys)
 
     def __unicode__(self):
         keys = {}
-        for k,v in self.__dict__.iteritems():
+        for k,v in self.__dict__.items():
             if isinstance(v, six.binary_type):
                 v = v.decode(sys.getfilesystemencoding(), 'replace')
             keys[k] = v
-        return unicode(self.msg, encoding=sys.getfilesystemencoding(), errors='replace') % keys
+        return str(self.msg, encoding=sys.getfilesystemencoding(), errors='replace') % keys
 
     def __reduce__(self):
         return (self.__class__,(),self.__dict__.copy(),)
@@ -217,33 +217,33 @@ def convert_fs_errors(func):
     def wrapper(*args,**kwds):
         try:
             return func(*args,**kwds)
-        except ResourceNotFoundError, e:
+        except ResourceNotFoundError as e:
             raise OSError(errno.ENOENT,str(e))
-        except ParentDirectoryMissingError, e:
+        except ParentDirectoryMissingError as e:
             if sys.platform == "win32":
                 raise OSError(errno.ESRCH,str(e))
             else:
                 raise OSError(errno.ENOENT,str(e))
-        except ResourceInvalidError, e:
+        except ResourceInvalidError as e:
             raise OSError(errno.EINVAL,str(e))
-        except PermissionDeniedError, e:
+        except PermissionDeniedError as e:
             raise OSError(errno.EACCES,str(e))
-        except ResourceLockedError, e:
+        except ResourceLockedError as e:
             if sys.platform == "win32":
                 raise WindowsError(32,str(e))
             else:
                 raise OSError(errno.EACCES,str(e))
-        except DirectoryNotEmptyError, e:
+        except DirectoryNotEmptyError as e:
             raise OSError(errno.ENOTEMPTY,str(e))
-        except DestinationExistsError, e:
+        except DestinationExistsError as e:
             raise OSError(errno.EEXIST,str(e))
-        except StorageSpaceError, e:
+        except StorageSpaceError as e:
             raise OSError(errno.ENOSPC,str(e))
-        except RemoteConnectionError, e:
+        except RemoteConnectionError as e:
             raise OSError(errno.ENETDOWN,str(e))
-        except UnsupportedError, e:
+        except UnsupportedError as e:
             raise OSError(errno.ENOSYS,str(e))
-        except FSError, e:
+        except FSError as e:
             raise OSError(errno.EFAULT,str(e))
     return wrapper
 
@@ -255,7 +255,7 @@ def convert_os_errors(func):
     def wrapper(self,*args,**kwds):
         try:
             return func(self,*args,**kwds)
-        except (OSError,IOError), e:
+        except (OSError,IOError) as e:
             (exc_type,exc_inst,tb) = sys.exc_info()
             path = getattr(e,"filename",None)
             if path and path[0] == "/" and hasattr(self,"root_path"):
@@ -263,53 +263,53 @@ def convert_os_errors(func):
                 if isprefix(self.root_path,path):
                     path = path[len(self.root_path):]
             if not hasattr(e,"errno") or not e.errno:
-                raise OperationFailedError(opname,details=e),None,tb
+                raise OperationFailedError(opname,details=e).with_traceback(tb)
             if e.errno == errno.ENOENT:
-                raise ResourceNotFoundError(path,opname=opname,details=e),None,tb
+                raise ResourceNotFoundError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.EFAULT:
                 # This can happen when listdir a directory that is deleted by another thread
                 # Best to interpret it as a resource not found
-                raise ResourceNotFoundError(path,opname=opname,details=e),None,tb
+                raise ResourceNotFoundError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.ESRCH:
-                raise ResourceNotFoundError(path,opname=opname,details=e),None,tb
+                raise ResourceNotFoundError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.ENOTEMPTY:
-                raise DirectoryNotEmptyError(path,opname=opname,details=e),None,tb
+                raise DirectoryNotEmptyError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.EEXIST:
-                raise DestinationExistsError(path,opname=opname,details=e),None,tb
+                raise DestinationExistsError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == 183: # some sort of win32 equivalent to EEXIST
-                raise DestinationExistsError(path,opname=opname,details=e),None,tb
+                raise DestinationExistsError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.ENOTDIR:
-                raise ResourceInvalidError(path,opname=opname,details=e),None,tb
+                raise ResourceInvalidError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.EISDIR:
-                raise ResourceInvalidError(path,opname=opname,details=e),None,tb
+                raise ResourceInvalidError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.EINVAL:
-                raise ResourceInvalidError(path,opname=opname,details=e),None,tb
+                raise ResourceInvalidError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.ENOSPC:
-                raise StorageSpaceError(opname,path=path,details=e),None,tb
+                raise StorageSpaceError(opname,path=path,details=e).with_traceback(tb)
             if e.errno == errno.EPERM:
-                raise PermissionDeniedError(opname,path=path,details=e),None,tb
+                raise PermissionDeniedError(opname,path=path,details=e).with_traceback(tb)
             if hasattr(errno,"ENONET") and e.errno == errno.ENONET:
-                raise RemoteConnectionError(opname,path=path,details=e),None,tb
+                raise RemoteConnectionError(opname,path=path,details=e).with_traceback(tb)
             if e.errno == errno.ENETDOWN:
-                raise RemoteConnectionError(opname,path=path,details=e),None,tb
+                raise RemoteConnectionError(opname,path=path,details=e).with_traceback(tb)
             if e.errno == errno.ECONNRESET:
-                raise RemoteConnectionError(opname,path=path,details=e),None,tb
+                raise RemoteConnectionError(opname,path=path,details=e).with_traceback(tb)
             if e.errno == errno.EACCES:
                 if sys.platform == "win32":
                     if e.args[0] and e.args[0] == 32:
-                        raise ResourceLockedError(path,opname=opname,details=e),None,tb
-                raise PermissionDeniedError(opname,details=e),None,tb
+                        raise ResourceLockedError(path,opname=opname,details=e).with_traceback(tb)
+                raise PermissionDeniedError(opname,details=e).with_traceback(tb)
             # Sometimes windows gives some random errors...
             if sys.platform == "win32":
                 if e.errno in (13,):
-                    raise ResourceInvalidError(path,opname=opname,details=e),None,tb
+                    raise ResourceInvalidError(path,opname=opname,details=e).with_traceback(tb)
             if e.errno == errno.ENAMETOOLONG:
-                raise PathError(path,details=e),None,tb
+                raise PathError(path,details=e).with_traceback(tb)
             if e.errno == errno.EOPNOTSUPP:
-                raise UnsupportedError(opname,details=e),None,tb
+                raise UnsupportedError(opname,details=e).with_traceback(tb)
             if e.errno == errno.ENOSYS:
-                raise UnsupportedError(opname,details=e),None,tb
-            raise OperationFailedError(opname,details=e),None,tb
+                raise UnsupportedError(opname,details=e).with_traceback(tb)
+            raise OperationFailedError(opname,details=e).with_traceback(tb)
     return wrapper
 
 

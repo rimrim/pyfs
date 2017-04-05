@@ -12,11 +12,11 @@ class TestMountFS(unittest.TestCase):
         m2 = MemoryFS()
         multi_fs.mount('/m1', m1)
         multi_fs.mount('/m2', m2)
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
         multi_fs.close()
-        self.assert_(m1.closed)
-        self.assert_(m2.closed)
+        self.assertTrue(m1.closed)
+        self.assertTrue(m2.closed)
 
     def test_no_auto_close(self):
         """Test MountFS auto close can be disabled"""
@@ -25,11 +25,11 @@ class TestMountFS(unittest.TestCase):
         m2 = MemoryFS()
         multi_fs.mount('/m1', m1)
         multi_fs.mount('/m2', m2)
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
         multi_fs.close()
-        self.assert_(not m1.closed)
-        self.assert_(not m2.closed)
+        self.assertTrue(not m1.closed)
+        self.assertTrue(not m2.closed)
 
     def test_mountfile(self):
         """Test mounting a file"""
@@ -42,16 +42,16 @@ class TestMountFS(unittest.TestCase):
         mount_fs = MountFS()
         mount_fs.mountfile('bar.txt', foo_dir.open, foo_dir.getinfo)
 
-        self.assert_(mount_fs.isdir('/'))
-        self.assert_(mount_fs.isdir('./'))
-        self.assert_(mount_fs.isdir(''))
+        self.assertTrue(mount_fs.isdir('/'))
+        self.assertTrue(mount_fs.isdir('./'))
+        self.assertTrue(mount_fs.isdir(''))
 
         # Check we can see the mounted file in the dir list
         self.assertEqual(mount_fs.listdir(), ["bar.txt"])
-        self.assert_(not mount_fs.exists('nobodyhere.txt'))
-        self.assert_(mount_fs.exists('bar.txt'))
-        self.assert_(mount_fs.isfile('bar.txt'))
-        self.assert_(not mount_fs.isdir('bar.txt'))
+        self.assertTrue(not mount_fs.exists('nobodyhere.txt'))
+        self.assertTrue(mount_fs.exists('bar.txt'))
+        self.assertTrue(mount_fs.isfile('bar.txt'))
+        self.assertTrue(not mount_fs.isdir('bar.txt'))
 
         # Check open and getinfo callables
         self.assertEqual(mount_fs.getcontents('bar.txt'), quote)
@@ -67,9 +67,9 @@ class TestMountFS(unittest.TestCase):
         self.assertEqual(mem_fs.getsize('foo/bar.txt'), len('baz'))
 
         # Check unmount
-        self.assert_(mount_fs.unmount("bar.txt"))
+        self.assertTrue(mount_fs.unmount("bar.txt"))
         self.assertEqual(mount_fs.listdir(), [])
-        self.assert_(not mount_fs.exists('bar.txt'))
+        self.assertTrue(not mount_fs.exists('bar.txt'))
 
         # Check unount a second time is a null op, and returns False
         self.assertFalse(mount_fs.unmount("bar.txt"))

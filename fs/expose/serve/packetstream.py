@@ -3,9 +3,9 @@ try:
 except ImportError:
     from simplejson import dumps, loads
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 
 def encode(header='', payload=''):
@@ -52,7 +52,7 @@ class PreludeError(DecoderError):
 
 class Decoder(object):
 
-    STAGE_PRELUDE, STAGE_SIZE, STAGE_HEADER, STAGE_PAYLOAD = range(4)
+    STAGE_PRELUDE, STAGE_SIZE, STAGE_HEADER, STAGE_PAYLOAD = list(range(4))
     MAX_PRELUDE = 255
 
     def __init__(self, no_prelude=False, prelude_callback=None):
@@ -86,7 +86,7 @@ class Decoder(object):
         if self.stream_broken:
             raise DecoderError('Stream is broken')
 
-        STAGE_PRELUDE, STAGE_SIZE, STAGE_HEADER, STAGE_PAYLOAD = range(4)
+        STAGE_PRELUDE, STAGE_SIZE, STAGE_HEADER, STAGE_PAYLOAD = list(range(4))
 
         size_append = self._size.append
         header_append = self._header_data.append
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     f = StringIO()
     encoder = JSONFileEncoder(f)
     encoder.write(dict(a=1, b=2), 'Payload')
-    encoder.write(dict(foo="bar", nested=dict(apples="oranges"), alist=range(5)), 'Payload goes here')
+    encoder.write(dict(foo="bar", nested=dict(apples="oranges"), alist=list(range(5))), 'Payload goes here')
     encoder.write(None, 'Payload')
     encoder.write(dict(a=1))
     encoder.write()
@@ -248,6 +248,6 @@ if __name__ == "__main__":
         if not data:
             break
         for header, payload in decoder.feed(data):
-            print "Header:", repr(header)
-            print "Payload:", repr(payload)
+            print("Header:", repr(header))
+            print("Payload:", repr(payload))
 

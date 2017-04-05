@@ -48,13 +48,13 @@ def _os_stat(path):
 
 
 @convert_os_errors
-def _os_mkdir(name, mode=0777):
+def _os_mkdir(name, mode=0o777):
     """Replacement for os.mkdir that raises FSError subclasses."""
     return os.mkdir(name, mode)
 
 
 @convert_os_errors
-def _os_makedirs(name, mode=0777):
+def _os_makedirs(name, mode=0o777):
     """Replacement for os.makdirs that raises FSError subclasses.
 
     This implementation also correctly handles win32 long filenames (those
@@ -71,7 +71,7 @@ def _os_makedirs(name, mode=0777):
     if head and tail and not os.path.exists(head):
         try:
             _os_makedirs(head, mode)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
         if tail == os.curdir:
@@ -98,11 +98,11 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
              'atomic.setcontents': False}
 
     if platform.system() == 'Windows':
-        _meta["invalid_path_chars"] = ''.join(chr(n) for n in xrange(31)) + '\\:*?"<>|'
+        _meta["invalid_path_chars"] = ''.join(chr(n) for n in range(31)) + '\\:*?"<>|'
     else:
         _meta["invalid_path_chars"] = '\0'
 
-    def __init__(self, root_path, thread_synchronize=_thread_synchronize_default, encoding=None, create=False, dir_mode=0700, use_long_paths=True):
+    def __init__(self, root_path, thread_synchronize=_thread_synchronize_default, encoding=None, create=False, dir_mode=0o700, use_long_paths=True):
         """
         Creates an FS object that represents the OS Filesystem under a given root path
 
@@ -124,13 +124,13 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
         if sys.platform == "win32":
             if use_long_paths and not root_path.startswith("\\\\?\\"):
                 if not root_path.startswith("\\"):
-                    root_path = u"\\\\?\\" + root_path
+                    root_path = "\\\\?\\" + root_path
                 else:
                     # Explicitly mark UNC paths, seems to work better.
                     if root_path.startswith("\\\\"):
-                        root_path = u"\\\\?\\UNC\\" + root_path[2:]
+                        root_path = "\\\\?\\UNC\\" + root_path[2:]
                     else:
-                        root_path = u"\\\\?" + root_path
+                        root_path = "\\\\?" + root_path
             #  If it points at the root of a drive, it needs a trailing slash.
             if len(root_path) == 6 and not root_path.endswith("\\"):
                 root_path = root_path + "\\"
@@ -155,16 +155,16 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
         return "<OSFS: %r>" % self.root_path
 
     def __unicode__(self):
-        return u"<OSFS: %s>" % self.root_path
+        return "<OSFS: %s>" % self.root_path
 
     def _decode_path(self, p):
-        if isinstance(p, unicode):
+        if isinstance(p, str):
             return p
         return p.decode(self.encoding, 'replace')
 
     def getsyspath(self, path, allow_none=False):
         self.validatepath(path)
-        path = relpath(normpath(path)).replace(u"/", os.sep)
+        path = relpath(normpath(path)).replace("/", os.sep)
         path = os.path.join(self.root_path, path)
         if not path.startswith(self.root_path):
             raise PathError(path, msg="OSFS given path outside root: %(path)s")
@@ -234,7 +234,7 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
             encoding = encoding or 'utf-8'
         try:
             return io.open(sys_path, mode=mode, buffering=buffering, encoding=encoding, errors=errors, newline=newline)
-        except EnvironmentError, e:
+        except EnvironmentError as e:
             #  Win32 gives EACCES when opening a directory.
             if sys.platform == "win32" and e.errno in (errno.EACCES,):
                 if self.isdir(path):
@@ -301,7 +301,7 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
         sys_path = self.getsyspath(path)
         try:
             os.remove(sys_path)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.EACCES and sys.platform == "win32":
                 # sometimes windows says this for attempts to remove a dir
                 if os.path.isdir(sys_path):
@@ -338,7 +338,7 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
         path_dst = self.getsyspath(dst)
         try:
             os.rename(path_src, path_dst)
-        except OSError, e:
+        except OSError as e:
             if e.errno:
                 #  POSIX rename() can rename over an empty directory but gives
                 #  ENOTEMPTY if the dir has contents.  Raise UnsupportedError

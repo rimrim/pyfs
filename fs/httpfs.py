@@ -10,8 +10,8 @@ from fs.path import normpath
 from fs.errors import ResourceNotFoundError, UnsupportedError
 from fs.filelike import FileWrapper
 from fs import iotools
-
-from urllib2 import urlopen, URLError
+from urllib.request import urlopen
+from urllib.error import URLError
 from datetime import datetime
 
 
@@ -50,9 +50,9 @@ class HTTPFS(FS):
         url = self._make_url(path)
         try:
             f = urlopen(url)
-        except URLError, e:
+        except URLError as e:
             raise ResourceNotFoundError(path, details=e)
-        except OSError, e:
+        except OSError as e:
             raise ResourceNotFoundError(path, details=e)
 
         return FileWrapper(f)

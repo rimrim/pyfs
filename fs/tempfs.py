@@ -29,7 +29,7 @@ class TempFS(OSFS):
     _meta['atomic.move'] = True
     _meta['atomic.copy'] = True
 
-    def __init__(self, identifier=None, temp_dir=None, dir_mode=0700, thread_synchronize=_thread_synchronize_default):
+    def __init__(self, identifier=None, temp_dir=None, dir_mode=0o700, thread_synchronize=_thread_synchronize_default):
         """Creates a temporary Filesystem
 
         identifier -- A string that is included in the name of the temporary directory,
@@ -49,7 +49,7 @@ class TempFS(OSFS):
     __str__ = __repr__
 
     def __unicode__(self):
-        return u'<TempFS: %s>' % self._temp_dir
+        return '<TempFS: %s>' % self._temp_dir
 
     def __getstate__(self):
         # If we are picking a TempFS, we want to preserve its contents,

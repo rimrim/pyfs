@@ -34,7 +34,7 @@ class SubFS(WrapFS):
         return '<SubFS: %s/%s>' % (self.wrapped_fs, self.sub_dir.lstrip('/'))
 
     def __unicode__(self):
-        return u'<SubFS: %s/%s>' % (self.wrapped_fs, self.sub_dir.lstrip('/'))
+        return '<SubFS: %s/%s>' % (self.wrapped_fs, self.sub_dir.lstrip('/'))
 
     def __repr__(self):
         return "SubFS(%r, %r)" % (self.wrapped_fs, self.sub_dir)

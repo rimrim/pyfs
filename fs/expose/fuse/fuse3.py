@@ -229,7 +229,7 @@ def time_of_timespec(ts):
     return ts.tv_sec + ts.tv_nsec / 10 ** 9
 
 def set_st_attrs(st, attrs):
-    for key, val in attrs.items():
+    for key, val in list(attrs.items()):
         if key in ('st_atime', 'st_mtime', 'st_ctime'):
             timespec = getattr(st, key + 'spec')
             timespec.tv_sec = int(val)
@@ -274,7 +274,7 @@ class FUSE(object):
         kwargs.setdefault('fsname', operations.__class__.__name__)
         args.append('-o')
         args.append(','.join(key if val == True else '%s=%s' % (key, val)
-            for key, val in kwargs.items()))
+            for key, val in list(kwargs.items())))
         args.append(mountpoint)
         argv = (c_char_p * len(args))(*args)
 
@@ -361,7 +361,7 @@ class FUSE(object):
     def statfs(self, path, buf):
         stv = buf.contents
         attrs = self.operations('statfs', path)
-        for key, val in attrs.items():
+        for key, val in list(attrs.items()):
             if hasattr(stv, key):
                 setattr(stv, key, val)
         return 0

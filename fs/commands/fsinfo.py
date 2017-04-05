@@ -31,12 +31,12 @@ Display information regarding an FS resource"""
             return val
 
         def make_printable(text):
-            if not isinstance(text, basestring):
+            if not isinstance(text, str):
                 try:
                     text = str(text)
                 except:
                     try:
-                        text = unicode(text)
+                        text = str(text)
                     except:
                         text = repr(text)
             return text
@@ -48,16 +48,16 @@ Display information regarding an FS resource"""
                                                    dirs_only=options.dirsonly):
             if not options.omit:
                 if options.simple:
-                    file_line = u'%s\n' % self.wrap_filename(path)
+                    file_line = '%s\n' % self.wrap_filename(path)
                 else:
-                    file_line = u'[%s] %s\n' % (self.wrap_filename(path), self.wrap_faded(fs.desc(path)))
+                    file_line = '[%s] %s\n' % (self.wrap_filename(path), self.wrap_faded(fs.desc(path)))
                 self.output(file_line)
             info = fs.getinfo(path)
 
-            for k, v in info.items():
+            for k, v in list(info.items()):
                 if k.startswith('_'):
                     del info[k]
-                elif not isinstance(v, (basestring, int, long, float, bool, datetime)):
+                elif not isinstance(v, (str, int, float, bool, datetime)):
                     del info[k]
 
             if keys:

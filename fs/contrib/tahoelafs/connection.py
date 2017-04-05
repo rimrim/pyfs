@@ -10,17 +10,19 @@ if python3:
     from urllib.parse import urlencode, pathname2url, quote
     from urllib.request import Request, urlopen
 else:
-    from urllib import urlencode, pathname2url
-    from urllib2 import Request, urlopen, quote
+    from urllib.parse import urlencode
+    from urllib.request import pathname2url
+    from urllib.request import Request, urlopen
+    from urllib.parse import quote
 
 class PutRequest(Request):
     def __init__(self, *args, **kwargs):
-        self.get_method = lambda: u'PUT'
+        self.get_method = lambda: 'PUT'
         Request.__init__(self, *args, **kwargs)
 
 class DeleteRequest(Request):
     def __init__(self, *args, **kwargs):
-        self.get_method = lambda: u'DELETE'
+        self.get_method = lambda: 'DELETE'
         Request.__init__(self, *args, **kwargs)
 
 class Connection:
@@ -32,7 +34,7 @@ class Connection:
         '''
             Retrieve length of string or file object and prepare HTTP headers.
         '''
-        if isinstance(f, basestring):
+        if isinstance(f, str):
             # Just set up content length
             size = len(f)
         elif getattr(f, 'read', None):
@@ -50,20 +52,20 @@ class Connection:
 
     def _urlencode(self, data):
         _data = {}
-        for k, v in data.items():
+        for k, v in list(data.items()):
             _data[k.encode('utf-8')] = v.encode('utf-8')
         return urlencode(_data)
 
     def _quotepath(self, path, params={}):
         q = quote(path.encode('utf-8'), safe='/')
         if params:
-            return u"%s?%s" % (q, self._urlencode(params))
+            return "%s?%s" % (q, self._urlencode(params))
         return q
 
     def _urlopen(self, req):
         try:
             return urlopen(req)
-        except Exception, e:
+        except Exception as e:
             if not getattr(e, 'getcode', None):
                 raise errors.RemoteConnectionError(str(e))
             code = e.getcode()
@@ -85,7 +87,7 @@ class Connection:
         data = self._urlencode(data)
         path = self._quotepath(path)
         if data:
-            path = u'?'.join([path, data])
+            path = '?'.join([path, data])
 
         headers = {}
         headers.update(self.headers)

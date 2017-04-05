@@ -1,5 +1,5 @@
 import threading
-import Queue as queue
+import queue as queue
 
 def make_job(job_callable, *args, **kwargs):
     """ Returns a callable that calls the supplied callable with given arguements. """
@@ -33,8 +33,8 @@ class _PoolThread(threading.Thread):
             if callable(job):
                 try:
                     job()
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print(e)
             self.queue.task_done()
 
 
@@ -47,7 +47,7 @@ class ThreadPool(object):
         self.queue = queue.PriorityQueue(size)
         self.job_no = 0
 
-        self.threads =  [_PoolThread(self.queue, '%s #%i' % (name, i)) for i in xrange(num_threads)]
+        self.threads =  [_PoolThread(self.queue, '%s #%i' % (name, i)) for i in range(num_threads)]
 
         for thread in self.threads:
             thread.start()
@@ -84,9 +84,9 @@ if __name__ == "__main__":
 
 
     def job(n):
-        print "Starting #%i" % n
+        print("Starting #%i" % n)
         time.sleep(1)
-        print "Ending #%i" % n
+        print("Ending #%i" % n)
 
     pool = ThreadPool(5, 'test thread')
 

@@ -28,7 +28,7 @@ from fs.osfs import OSFS
 from fs.errors import convert_fs_errors
 from fs import iotools
 
-from six import text_type as unicode
+from six import text_type as str
 
 
 # Get these once so we can reuse them:
@@ -107,9 +107,9 @@ class FTPFS(ftpserver.AbstractedFS):
     def chdir(self, path):
         # We dont' use the decorator here, we actually decode a version of the
         # path for use with pyfs, but keep the original for use with pyftpdlib.
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             # pyftpdlib 0.7.x
-            unipath = unicode(path, self.encoding)
+            unipath = str(path, self.encoding)
         else:
             # pyftpdlib 1.x
             unipath = path
@@ -134,7 +134,7 @@ class FTPFS(ftpserver.AbstractedFS):
     @convert_fs_errors
     @decode_args
     def listdir(self, path):
-        return map(lambda x: x.encode(self.encoding), self.fs.listdir(path))
+        return [x.encode(self.encoding) for x in self.fs.listdir(path)]
 
     @convert_fs_errors
     @decode_args
@@ -190,7 +190,7 @@ class FTPFS(ftpserver.AbstractedFS):
             kwargs['st_mode'] = info['mode']
         else:
             # Otherwise, build one. Not executable by default.
-            mode = 0660
+            mode = 0o660
             # Merge in the type (dir or file). File is tested first, some file systems
             # such as ArchiveMountFS treat archive files as directories too. By checking
             # file first, any such files will be only files (not directories).
@@ -198,7 +198,7 @@ class FTPFS(ftpserver.AbstractedFS):
                 mode |= stat.S_IFREG
             elif self.fs.isdir(path):
                 mode |= stat.S_IFDIR
-                mode |= 0110  # Merge in exec bit to signal dir is listable
+                mode |= 0o110  # Merge in exec bit to signal dir is listable
             kwargs['st_mode'] = mode
         return FakeStat(**kwargs)
 

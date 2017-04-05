@@ -87,7 +87,7 @@ class HideDotFilesFS(WrapFS):
         path = normpath(path)
         iter_dir = iter(self.listdir(path,hidden=True))
         try:
-            iter_dir.next()
+            next(iter_dir)
         except StopIteration:
             return True
         return False

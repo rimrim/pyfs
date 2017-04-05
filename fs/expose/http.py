@@ -1,13 +1,13 @@
 __all__ = ["serve_fs"]
 
-import SimpleHTTPServer
-import SocketServer
+import http.server
+import socketserver
 from fs.path import pathjoin, dirname
 from fs.errors import FSError
 from time import mktime
-from cStringIO import StringIO
+from io import StringIO
 import cgi
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import posixpath
 import time
 import threading
@@ -16,13 +16,13 @@ import socket
 def _datetime_to_epoch(d):
     return mktime(d.timetuple())
 
-class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class FSHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     """A hacked together version of SimpleHTTPRequestHandler"""
 
     def __init__(self, fs, request, client_address, server):
         self._fs = fs
-        SimpleHTTPServer.SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
+        http.server.SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def do_GET(self):
         """Serve a GET request."""
@@ -69,7 +69,7 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         try:
             info = self._fs.getinfo(path)
             f = self._fs.open(path, 'rb')
-        except FSError, e:
+        except FSError as e:
             self.send_error(404, str(e))
             return None
         self.send_response(200)
@@ -98,7 +98,7 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         paths = [p+'/' for p in sorted(dir_paths, key=lambda p:p.lower())] + sorted(file_paths, key=lambda p:p.lower())
         #list.sort(key=lambda a: a.lower())
         f = StringIO()
-        displaypath = cgi.escape(urllib.unquote(self.path))
+        displaypath = cgi.escape(urllib.parse.unquote(self.path))
         f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
         f.write("<html>\n<title>Directory listing for %s</title>\n" % displaypath)
         f.write("<body>\n<h2>Directory listing for %s</h2>\n" % displaypath)
@@ -106,11 +106,11 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
         parent = dirname(path)
         if path != parent:
-            f.write('<li><a href="%s">../</a></li>' % urllib.quote(parent.rstrip('/') + '/'))
+            f.write('<li><a href="%s">../</a></li>' % urllib.parse.quote(parent.rstrip('/') + '/'))
 
         for path in paths:
             f.write('<li><a href="%s">%s</a>\n'
-                    % (urllib.quote(path), cgi.escape(path)))
+                    % (urllib.parse.quote(path), cgi.escape(path)))
         f.write("</ul>\n<hr>\n</body>\n</html>\n")
         length = f.tell()
         f.seek(0)
@@ -124,7 +124,7 @@ class FSHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         # abandon query parameters
         path = path.split('?',1)[0]
         path = path.split('#',1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
+        path = posixpath.normpath(urllib.parse.unquote(path))
         return path
 
 
@@ -143,7 +143,7 @@ def serve_fs(fs, address='', port=8000):
 
     #class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     #    pass
-    httpd = SocketServer.TCPServer((address, port), Handler, bind_and_activate=False)
+    httpd = socketserver.TCPServer((address, port), Handler, bind_and_activate=False)
     #httpd = ThreadedTCPServer((address, port), Handler, bind_and_activate=False)
     httpd.allow_reuse_address = True
     httpd.server_bind()

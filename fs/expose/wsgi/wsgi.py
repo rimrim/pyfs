@@ -1,5 +1,5 @@
 
-import urlparse
+import urllib.parse
 import mimetypes
 
 from fs.errors import FSError
@@ -10,7 +10,7 @@ from datetime import datetime
 try:
     from mako.template import Template
 except ImportError:
-    print "Requires mako templates http://www.makotemplates.org/"
+    print("Requires mako templates http://www.makotemplates.org/")
     raise
 
 
@@ -28,7 +28,7 @@ class WSGIServer(object):
     def __init__(self, serve_fs, indexes=True, dir_template=None, chunk_size=16*1024*1024):
 
         if dir_template is None:
-            from dirtemplate import template as dir_template
+            from .dirtemplate import template as dir_template
 
         self.serve_fs = serve_fs
         self.indexes = indexes
@@ -57,7 +57,7 @@ class WSGIServer(object):
         serving_file = None
         try:
             serving_file = self.serve_fs.open(path, 'rb')
-        except Exception, e:
+        except Exception as e:
             if serving_file is not None:
                 serving_file.close()
             return self.serve_500(request, str(e))

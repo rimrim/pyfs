@@ -58,7 +58,7 @@ class TestReadArchiveFS(unittest.TestCase):
             contents = f.read()
             return contents
         def check_contents(path, expected):
-            self.assert_(read_contents(path)==expected)
+            self.assertTrue(read_contents(path)==expected)
         check_contents("a.txt", b("Hello, World!"))
         check_contents("1.txt", b("1"))
         check_contents("foo/bar/baz.txt", b("baz"))
@@ -67,29 +67,29 @@ class TestReadArchiveFS(unittest.TestCase):
         def read_contents(path):
             return self.fs.getcontents(path)
         def check_contents(path, expected):
-            self.assert_(read_contents(path)==expected)
+            self.assertTrue(read_contents(path)==expected)
         check_contents("a.txt", b("Hello, World!"))
         check_contents("1.txt", b("1"))
         check_contents("foo/bar/baz.txt", b("baz"))
 
     def test_is(self):
-        self.assert_(self.fs.isfile('a.txt'))
-        self.assert_(self.fs.isfile('1.txt'))
-        self.assert_(self.fs.isfile('foo/bar/baz.txt'))
-        self.assert_(self.fs.isdir('foo'))
-        self.assert_(self.fs.isdir('foo/bar'))
-        self.assert_(self.fs.exists('a.txt'))
-        self.assert_(self.fs.exists('1.txt'))
-        self.assert_(self.fs.exists('foo/bar/baz.txt'))
-        self.assert_(self.fs.exists('foo'))
-        self.assert_(self.fs.exists('foo/bar'))
+        self.assertTrue(self.fs.isfile('a.txt'))
+        self.assertTrue(self.fs.isfile('1.txt'))
+        self.assertTrue(self.fs.isfile('foo/bar/baz.txt'))
+        self.assertTrue(self.fs.isdir('foo'))
+        self.assertTrue(self.fs.isdir('foo/bar'))
+        self.assertTrue(self.fs.exists('a.txt'))
+        self.assertTrue(self.fs.exists('1.txt'))
+        self.assertTrue(self.fs.exists('foo/bar/baz.txt'))
+        self.assertTrue(self.fs.exists('foo'))
+        self.assertTrue(self.fs.exists('foo/bar'))
 
     def test_listdir(self):
         def check_listing(path, expected):
             dir_list = self.fs.listdir(path)
-            self.assert_(sorted(dir_list) == sorted(expected))
+            self.assertTrue(sorted(dir_list) == sorted(expected))
             for item in dir_list:
-                self.assert_(isinstance(item,unicode))
+                self.assertTrue(isinstance(item,str))
         check_listing('/', ['a.txt', '1.txt', 'foo', 'b.txt'])
         check_listing('foo', ['second.txt', 'bar'])
         check_listing('foo/bar', ['baz.txt'])
@@ -114,7 +114,7 @@ class TestWriteArchiveFS(unittest.TestCase):
 
         makefile("a.txt", b("Hello, World!"))
         makefile("b.txt", b("b"))
-        makefile(u"\N{GREEK SMALL LETTER ALPHA}/\N{GREEK CAPITAL LETTER OMEGA}.txt", b("this is the alpha and the omega"))
+        makefile("\N{GREEK SMALL LETTER ALPHA}/\N{GREEK CAPITAL LETTER OMEGA}.txt", b("this is the alpha and the omega"))
         makefile("foo/bar/baz.txt", b("baz"))
         makefile("foo/second.txt", b("hai"))
 
@@ -125,7 +125,7 @@ class TestWriteArchiveFS(unittest.TestCase):
 
     def test_valid(self):
         zf = zipfile.ZipFile(self.temp_filename, "r")
-        self.assert_(zf.testzip() is None)
+        self.assertTrue(zf.testzip() is None)
         zf.close()
 
     def test_creation(self):
@@ -140,7 +140,7 @@ class TestWriteArchiveFS(unittest.TestCase):
         check_contents("b.txt", b("b"))
         check_contents("foo/bar/baz.txt", b("baz"))
         check_contents("foo/second.txt", b("hai"))
-        check_contents(u"\N{GREEK SMALL LETTER ALPHA}/\N{GREEK CAPITAL LETTER OMEGA}.txt", b("this is the alpha and the omega"))
+        check_contents("\N{GREEK SMALL LETTER ALPHA}/\N{GREEK CAPITAL LETTER OMEGA}.txt", b("this is the alpha and the omega"))
 
 
 #~ class TestAppendArchiveFS(TestWriteArchiveFS):

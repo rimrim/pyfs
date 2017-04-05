@@ -68,7 +68,7 @@ else:
 
 
 def _unicode(text):
-    if not isinstance(text, unicode):
+    if not isinstance(text, str):
         return text.decode('ascii', 'replace')
     return text
 
@@ -128,17 +128,17 @@ class Command(object):
         text = _unicode(text)
         if not self.terminal_colors:
             return text
-        return u'\x1b[2m%s\x1b[0m' % text
+        return '\x1b[2m%s\x1b[0m' % text
 
     def wrap_link(self, text):
         if not self.terminal_colors:
             return text
-        return u'\x1b[1;33m%s\x1b[0m' % text
+        return '\x1b[1;33m%s\x1b[0m' % text
 
     def wrap_strong(self, text):
         if not self.terminal_colors:
             return text
-        return u'\x1b[1m%s\x1b[0m' % text
+        return '\x1b[1m%s\x1b[0m' % text
 
     def wrap_table_header(self, name):
         if not self.terminal_colors:
@@ -215,10 +215,10 @@ class Command(object):
         return resources
 
     def ask(self, msg):
-        return raw_input('%s: %s ' % (self.name, msg))
+        return input('%s: %s ' % (self.name, msg))
 
     def text_encode(self, text):
-        if not isinstance(text, unicode):
+        if not isinstance(text, str):
             text = text.decode('ascii', 'replace')
         text = text.encode(self.encoding, 'replace')
         return text
@@ -226,7 +226,7 @@ class Command(object):
     def output(self, msgs, verbose=False):
         if verbose and not self.options.verbose:
             return
-        if isinstance(msgs, basestring):
+        if isinstance(msgs, str):
             msgs = (msgs,)
         for msg in msgs:
             self.output_file.write(self.text_encode(msg))
@@ -276,7 +276,7 @@ class Command(object):
 
         opener_table = []
 
-        for fs_opener in opener.openers.itervalues():
+        for fs_opener in opener.openers.values():
             names = fs_opener.names
             desc = getattr(fs_opener, 'desc', '')
             opener_table.append((names, desc))
@@ -346,12 +346,12 @@ class Command(object):
                 opener.add(new_opener)
 
         if not six.PY3:
-            args = [unicode(arg, sys.getfilesystemencoding()) for arg in args]
+            args = [str(arg, sys.getfilesystemencoding()) for arg in args]
         self.verbose = options.verbose
         try:
             return self.do_run(options, args) or 0
-        except FSError, e:
-            self.error(self.wrap_error(unicode(e)) + '\n')
+        except FSError as e:
+            self.error(self.wrap_error(str(e)) + '\n')
             if options.debug:
                 raise
             return 1
@@ -361,8 +361,8 @@ class Command(object):
             return 0
         except SystemExit:
             return 0
-        except Exception, e:
-            self.error(self.wrap_error('Error - %s\n' % unicode(e)))
+        except Exception as e:
+            self.error(self.wrap_error('Error - %s\n' % str(e)))
             if options.debug:
                 raise
             return 1

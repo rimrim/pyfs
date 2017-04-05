@@ -32,12 +32,12 @@ def rewrite_errors(func):
     def wrapper(self,*args,**kwds):
         try:
             return func(self,*args,**kwds)
-        except ResourceError, e:
+        except ResourceError as e:
             (exc_type,exc_inst,tb) = sys.exc_info()
             try:
                 e.path = self._decode(e.path)
             except (AttributeError, ValueError, TypeError):
-                raise e, None, tb
+                raise e.with_traceback(tb)
             raise
     return wrapper
 
@@ -119,7 +119,7 @@ class WrapFS(FS):
         return (mode, mode)
 
     def __unicode__(self):
-        return u"<%s: %s>" % (self.__class__.__name__,self.wrapped_fs,)
+        return "<%s: %s>" % (self.__class__.__name__,self.wrapped_fs,)
 
     #def __str__(self):
     #    return unicode(self).encode(sys.getdefaultencoding(),"replace")

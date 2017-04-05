@@ -71,7 +71,7 @@ class WatcherTestCases:
         for event in event_list:
             if isinstance(event,cls):
                 if path is None or event.path == path:
-                    for (k,v) in attrs.iteritems():
+                    for (k,v) in attrs.items():
                         if getattr(event,k) != v:
                             break
                     else:
@@ -98,7 +98,7 @@ class WatcherTestCases:
         self.assertEventOccurred(CREATED,"/hello")
         self.clearCapturedEvents()
         old_atime = self.fs.getinfo("hello").get("accessed_time")
-        self.assertEquals(self.fs.getcontents("hello"), b("hello world"))
+        self.assertEqual(self.fs.getcontents("hello"), b("hello world"))
         if not isinstance(self.watchfs,PollingWatchableFS):
             #  Help it along by updting the atime.
             #  TODO: why is this necessary?
@@ -113,7 +113,7 @@ class WatcherTestCases:
             #  update it if it's too old, or don't update it at all!
             #  Try to force the issue, wait for it to change, but eventually
             #  give up and bail out.
-            for i in xrange(10):
+            for i in range(10):
                 if self.fs.getinfo("hello").get("accessed_time") != old_atime:
                     if not self.checkEventOccurred(MODIFIED,"/hello"):
                         self.assertEventOccurred(ACCESSED,"/hello")
@@ -142,7 +142,7 @@ class WatcherTestCases:
         self.waitForEvents()
         for evt in events:
             assert isinstance(evt,MODIFIED)
-            self.assertEquals(evt.path,"/hello")
+            self.assertEqual(evt.path,"/hello")
 
     def test_watch_single_file_remove(self):
         self.fs.makedir("testing")
@@ -153,9 +153,9 @@ class WatcherTestCases:
         self.waitForEvents()
         self.fs.remove("testing/hello")
         self.waitForEvents()
-        self.assertEquals(len(events),1)
+        self.assertEqual(len(events),1)
         assert isinstance(events[0],REMOVED)
-        self.assertEquals(events[0].path,"/testing/hello")
+        self.assertEqual(events[0].path,"/testing/hello")
 
     def test_watch_iter_changes(self):
         changes = iter_changes(self.watchfs)
@@ -195,9 +195,9 @@ class TestWatchers_TempFS(unittest.TestCase,FSTestCases,WatcherTestCases):
         watchfs = osfs.OSFS(self.fs.root_path)
         self.watchfs = ensure_watchable(watchfs,poll_interval=0.1)
         if watch_inotify is not None:
-            self.assertEquals(watchfs,self.watchfs)
+            self.assertEqual(watchfs,self.watchfs)
         if watch_win32 is not None:
-            self.assertEquals(watchfs,self.watchfs)
+            self.assertEqual(watchfs,self.watchfs)
 
     def tearDown(self):
         self.watchfs.close()

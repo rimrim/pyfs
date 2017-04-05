@@ -1,5 +1,5 @@
 # Work in Progress - Do not use
-from __future__ import with_statement
+
 from fs.base import FS
 from fs.expose.serve import packetstream
 
@@ -7,7 +7,7 @@ from collections import defaultdict
 import threading
 from threading import Lock, RLock
 from json import dumps
-import Queue as queue
+import queue as queue
 import socket
 
 from six import b
@@ -35,12 +35,12 @@ class PacketHandler(threading.Thread):
         while True:
             data = read(1024*16)
             if not data:
-                print "No data"
+                print("No data")
                 break
-            print "data", repr(data)
+            print("data", repr(data))
             for header, payload in decoder.feed(data):
-                print repr(header)
-                print repr(payload)
+                print(repr(header))
+                print(repr(payload))
                 on_packet(header, payload)
 
     def _new_call_id(self):
@@ -77,8 +77,8 @@ class PacketHandler(threading.Thread):
 
         while True:
             header, payload = queue.get()
-            print repr(header)
-            print repr(payload)
+            print(repr(header))
+            print(repr(payload))
             if client_ref is not None and header.get('client_ref') != client_ref:
                 continue
             break
@@ -167,9 +167,9 @@ class RemoteFS(FS):
     def ping(self, msg):
         call_id = self.packet_handler.send_packet({'type':'rpc', 'method':'ping'}, msg)
         header, payload = self.packet_handler.get_packet(call_id)
-        print "PING"
-        print header
-        print payload
+        print("PING")
+        print(header)
+        print(payload)
 
     def close(self):
         self.transport.close()

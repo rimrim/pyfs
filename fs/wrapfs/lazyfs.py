@@ -39,14 +39,14 @@ class LazyFS(WrapFS):
             #  It appears that python2.5 has trouble printing out
             #  classes that define a __unicode__ method.
             try:
-                return u"<LazyFS: %s>" % (self._fsclass,)
+                return "<LazyFS: %s>" % (self._fsclass,)
             except TypeError:
                 try:
-                    return u"<LazyFS: %s>" % (self._fsclass.__name__,)
+                    return "<LazyFS: %s>" % (self._fsclass.__name__,)
                 except AttributeError:
-                    return u"<LazyFS: <unprintable>>"
+                    return "<LazyFS: <unprintable>>"
         else:
-            return u"<LazyFS: %s>" % (wrapped_fs,)
+            return "<LazyFS: %s>" % (wrapped_fs,)
 
     def __getstate__(self):
         state = super(LazyFS,self).__getstate__()

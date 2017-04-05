@@ -106,7 +106,7 @@ class MultiFS(FS):
 
     @synchronize
     def __unicode__(self):
-        return u"<MultiFS: %s>" % ", ".join(unicode(fs) for fs in self.fs_sequence)
+        return "<MultiFS: %s>" % ", ".join(str(fs) for fs in self.fs_sequence)
 
     def _get_priority(self, name):
         return self.fs_priorities[name]
@@ -128,7 +128,7 @@ class MultiFS(FS):
 
     def _priority_sort(self):
         """Sort filesystems by priority order"""
-        priority_order = sorted(self.fs_lookup.keys(), key=lambda n: self.fs_priorities[n], reverse=True)
+        priority_order = sorted(list(self.fs_lookup.keys()), key=lambda n: self.fs_priorities[n], reverse=True)
         self.fs_sequence = [self.fs_lookup[name] for name in priority_order]
 
     @synchronize
@@ -214,7 +214,7 @@ class MultiFS(FS):
             return self.writefs
         for fs in self:
             if fs.exists(path):
-                for fs_name, fs_object in self.fs_lookup.iteritems():
+                for fs_name, fs_object in self.fs_lookup.items():
                     if fs is fs_object:
                         return fs_name, fs
         raise ResourceNotFoundError(path, msg="Path does not map to any filesystem: %(path)s")

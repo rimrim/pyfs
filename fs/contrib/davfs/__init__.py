@@ -16,21 +16,21 @@ Requires the dexml module:
 #  Copyright (c) 2009-2010, Cloud Matrix Pty. Ltd.
 #  All rights reserved; available under the terms of the MIT License.
 
-from __future__ import with_statement
+
 
 import os
 import sys
-import httplib
+import http.client
 import socket
-from urlparse import urlparse
+from urllib.parse import urlparse
 import stat as statinfo
-from urllib import quote as urlquote
-from urllib import unquote as urlunquote
+from urllib.parse import quote as urlquote
+from urllib.parse import unquote as urlunquote
 import base64
 import re
 import time
 import datetime
-import cookielib
+import http.cookiejar
 import fnmatch
 import xml.dom.pulldom
 import threading
@@ -78,8 +78,8 @@ class DAVFS(FS):
     """
 
     connection_classes = {
-        "http":  httplib.HTTPConnection,
-        "https":  httplib.HTTPSConnection,
+        "http":  http.client.HTTPConnection,
+        "https":  http.client.HTTPSConnection,
     }
 
     _DEFAULT_PORT_NUMBERS = {
@@ -116,7 +116,7 @@ class DAVFS(FS):
         self._connections = []
         self._free_connections = {}
         self._connection_lock = threading.Lock()
-        self._cookiejar = cookielib.CookieJar()
+        self._cookiejar = http.cookiejar.CookieJar()
         super(DAVFS,self).__init__(thread_synchronize=thread_synchronize)
         #  Check that the server speaks WebDAV, and normalize the URL
         #  after any redirects have been followed.
@@ -221,14 +221,14 @@ class DAVFS(FS):
         self._free_connections = {}
         self._connection_lock = threading.Lock()
         self._url_p = urlparse(self.url)
-        self._cookiejar = cookielib.CookieJar()
+        self._cookiejar = http.cookiejar.CookieJar()
 
     def getpathurl(self, path, allow_none=False):
         """Convert a client-side path into a server-side URL."""
         path = relpath(normpath(path))
         if path.endswith("/"):
             path = path[:-1]
-        if isinstance(path,unicode):
+        if isinstance(path,str):
             path = path.encode("utf8")
         return self.url + urlquote(path)
 
@@ -291,7 +291,7 @@ class DAVFS(FS):
         """Perform a single HTTP request, without any error handling."""
         if self.closed:
             raise RemoteConnectionError("",msg="FS is closed")
-        if isinstance(url,basestring):
+        if isinstance(url,str):
             url = urlparse(url)
         if self.credentials is not None:
             username = self.credentials.get("username","")
@@ -310,7 +310,7 @@ class DAVFS(FS):
                 if hasattr(body,"md5"):
                     md5 = body.md5.decode("hex").encode("base64")
                     con.putheader("Content-MD5",md5)
-                for hdr,val in headers.iteritems():
+                for hdr,val in headers.items():
                     con.putheader(hdr,val)
                 self._cookiejar.add_cookie_header(FakeReq(con,url.scheme,url.path))
                 con.endheaders()
@@ -332,7 +332,7 @@ class DAVFS(FS):
                     self._give_connection(url,con)
                 resp.close = new_close
                 return resp
-        except socket.error, e:
+        except socket.error as e:
             if not fresh:
                 return self._raw_request(url,method,body,headers,num_tries)
             if e.args[0] in _RETRYABLE_ERRORS:
@@ -479,7 +479,7 @@ class DAVFS(FS):
                 if not entry_ok:
                     continue
                 if wildcard is not None:
-                    if isinstance(wildcard,basestring):
+                    if isinstance(wildcard,str):
                         if not fnmatch.fnmatch(nm,wildcard):
                             continue
                     else:
@@ -530,7 +530,7 @@ class DAVFS(FS):
                 if not entry_ok:
                     continue
                 if wildcard is not None:
-                    if isinstance(wildcard,basestring):
+                    if isinstance(wildcard,str):
                         if not fnmatch.fnmatch(nm,wildcard):
                             continue
                     else:
@@ -610,7 +610,7 @@ class DAVFS(FS):
                 if self._isurl(path,res.href):
                     info.update(self._info_from_propfind(res))
             if "st_mode" not in info:
-               info["st_mode"] = 0700 | statinfo.S_IFREG
+               info["st_mode"] = 0o700 | statinfo.S_IFREG
             return info
         finally:
             response.close()
@@ -647,7 +647,7 @@ class DAVFS(FS):
             # TODO: should check for status of the propfind first...
             # check for directory indicator
             if findElements("DAV:","collection"):
-                info["st_mode"] = 0700 | statinfo.S_IFDIR
+                info["st_mode"] = 0o700 | statinfo.S_IFDIR
             # check for content length
             cl = findElements("DAV:","getcontentlength")
             if cl:
@@ -674,7 +674,7 @@ class DAVFS(FS):
                 if etag:
                     info["etag"] = etag
         if "st_mode" not in info:
-            info["st_mode"] = 0700 | statinfo.S_IFREG
+            info["st_mode"] = 0o700 | statinfo.S_IFREG
         return info
 
 

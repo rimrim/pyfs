@@ -61,7 +61,7 @@ systems with Dokan installed.
 #  Copyright (c) 2016-2016, Adrien J. <liryna.stark@gmail.com>.
 #  All rights reserved; available under the terms of the MIT License.
 
-from __future__ import with_statement, absolute_import
+
 
 import six
 import sys
@@ -71,7 +71,7 @@ import time
 import stat as statinfo
 import subprocess
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 import datetime

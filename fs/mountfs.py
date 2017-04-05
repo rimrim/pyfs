@@ -61,7 +61,7 @@ class DirMount(object):
         return "<DirMount %s, %s>" % (self.path, self.fs)
 
     def __unicode__(self):
-        return u"<DirMount %s, %s>" % (self.path, self.fs)
+        return "<DirMount %s, %s>" % (self.path, self.fs)
 
 
 class FileMount(object):
@@ -90,12 +90,12 @@ class MountFS(FS):
         self.mount_tree = PathMap()
 
     def __str__(self):
-        return "<%s [%s]>" % (self.__class__.__name__,self.mount_tree.items(),)
+        return "<%s [%s]>" % (self.__class__.__name__,list(self.mount_tree.items()),)
 
     __repr__ = __str__
 
     def __unicode__(self):
-        return u"<%s [%s]>" % (self.__class__.__name__,self.mount_tree.items(),)
+        return "<%s [%s]>" % (self.__class__.__name__,list(self.mount_tree.items()),)
 
     def _delegate(self, path):
         path = abspath(normpath(path))
@@ -119,7 +119,7 @@ class MountFS(FS):
             return self, "/", path
 
         try:
-            self.mount_tree.iternames(path).next()
+            next(self.mount_tree.iternames(path))
         except StopIteration:
             return None, None, None
         else:
@@ -129,7 +129,7 @@ class MountFS(FS):
     def close(self):
         # Explicitly closes children if requested
         if self.auto_close:
-            for mount in self.mount_tree.itervalues():
+            for mount in self.mount_tree.values():
                 mount.fs.close()
         # Free references (which may incidently call the close method of the child filesystems)
         self.mount_tree.clear()

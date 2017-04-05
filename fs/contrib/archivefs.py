@@ -62,7 +62,7 @@ class ArchiveFS(FS):
         :param thread_synchronize: set to True (default) to enable thread-safety
         """
         super(ArchiveFS, self).__init__(thread_synchronize=thread_synchronize)
-        if isinstance(f, basestring):
+        if isinstance(f, str):
             self.fileobj = None
             self.root_path = f
         else:
@@ -83,7 +83,7 @@ class ArchiveFS(FS):
         return "<ArchiveFS: %s>" % self.root_path
 
     def __unicode__(self):
-        return u"<ArchiveFS: %s>" % self.root_path
+        return "<ArchiveFS: %s>" % self.root_path
 
     def getmeta(self, meta_name, default=NoDefaultMeta):
         if meta_name == 'read_only':
@@ -446,7 +446,7 @@ class ArchiveMountFS(mountfs.MountFS):
             else:
                 listing = self.listdir(path, *args, **kwargs)
             if dirs_only:
-                listing = filter(isdir, listing)
+                listing = list(filter(isdir, listing))
             return listing
 
         if wildcard is None:

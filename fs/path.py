@@ -44,7 +44,7 @@ def normpath(path):
     if not _requires_normalization(path):
         return path.rstrip('/')
 
-    prefix = u'/' if path.startswith('/') else u''
+    prefix = '/' if path.startswith('/') else ''
     components = []
     append = components.append
     special = ('..', '.', '').__contains__
@@ -60,7 +60,7 @@ def normpath(path):
         # causing a circular import.
         from fs.errors import BackReferenceError
         raise BackReferenceError('Too many backrefs in \'%s\'' % path)
-    return prefix + u'/'.join(components)
+    return prefix + '/'.join(components)
 
 
 if os.sep != '/':
@@ -100,11 +100,11 @@ def recursepath(path, reverse=False):
     """
 
     if path in ('', '/'):
-        return [u'/']
+        return ['/']
 
     path = abspath(normpath(path)) + '/'
 
-    paths = [u'/']
+    paths = ['/']
     find = path.find
     append = paths.append
     pos = 1
@@ -133,7 +133,7 @@ def abspath(path):
 
     """
     if not path.startswith('/'):
-        return u'/' + path
+        return '/' + path
     return path
 
 
@@ -176,7 +176,7 @@ def pathjoin(*paths):
                 absolute = True
             relpaths.append(p)
 
-    path = normpath(u"/".join(relpaths))
+    path = normpath("/".join(relpaths))
     if absolute:
         path = abspath(path)
     return path
@@ -419,7 +419,7 @@ def relativefrom(base, path):
             break
         common += 1
 
-    return u'/'.join([u'..'] * (len(base) - common) + path[common:])
+    return '/'.join(['..'] * (len(base) - common) + path[common:])
 
 
 class PathMap(object):
@@ -559,7 +559,7 @@ class PathMap(object):
                     m = m[name]
                 except KeyError:
                     return
-        for (nm, subm) in m.iteritems():
+        for (nm, subm) in m.items():
             if not nm:
                 yield abspath(root)
             else:
@@ -568,7 +568,7 @@ class PathMap(object):
                     yield subk
 
     def __iter__(self):
-        return self.iterkeys()
+        return iter(self.keys())
 
     def keys(self,root="/"):
         return list(self.iterkeys(root))
@@ -583,7 +583,7 @@ class PathMap(object):
                     m = m[name]
                 except KeyError:
                     return
-        for (nm, subm) in m.iteritems():
+        for (nm, subm) in m.items():
             if not nm:
                 yield subm
             else:
@@ -604,7 +604,7 @@ class PathMap(object):
                     m = m[name]
                 except KeyError:
                     return
-        for (nm, subm) in m.iteritems():
+        for (nm, subm) in m.items():
             if not nm:
                 yield (abspath(normpath(root)), subm)
             else:
@@ -627,7 +627,7 @@ class PathMap(object):
                 m = m[name]
             except KeyError:
                 return
-        for (nm, subm) in m.iteritems():
+        for (nm, subm) in m.items():
             if nm and subm:
                 yield nm
 
@@ -651,9 +651,9 @@ def iswildcard(path):
     return not _wild_chars.isdisjoint(path)
 
 if __name__ == "__main__":
-    print recursepath('a/b/c')
+    print(recursepath('a/b/c'))
 
-    print relativefrom('/', '/foo')
-    print relativefrom('/foo/bar', '/foo/baz')
-    print relativefrom('/foo/bar/baz', '/foo/egg')
-    print relativefrom('/foo/bar/baz/egg', '/foo/egg')
+    print(relativefrom('/', '/foo'))
+    print(relativefrom('/foo/bar', '/foo/baz'))
+    print(relativefrom('/foo/bar/baz', '/foo/egg'))
+    print(relativefrom('/foo/bar/baz/egg', '/foo/egg'))

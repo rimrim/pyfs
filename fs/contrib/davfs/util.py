@@ -8,7 +8,7 @@
 
 import os
 import re
-import cookielib
+import http.cookiejar
 
 
 def get_fileno(file):
@@ -130,7 +130,7 @@ class FakeResp:
 #  is a tweaked version of the cookielib function of the same name.
 #
 _test_cookie = "sessionid=e9c9b002befa93bd865ce155270307ef; Domain=.cloud.me; expires=Wed, 10-Feb-2010 03:27:20 GMT; httponly; Max-Age=1209600; Path=/, sessionid_https=None; Domain=.cloud.me; expires=Wed, 10-Feb-2010 03:27:20 GMT; httponly; Max-Age=1209600; Path=/; secure"
-if len(cookielib.parse_ns_headers([_test_cookie])) != 2:
+if len(http.cookiejar.parse_ns_headers([_test_cookie])) != 2:
     def parse_ns_headers(ns_headers):
       """Improved parser for netscape-style cookies.
 
@@ -170,13 +170,13 @@ if len(cookielib.parse_ns_headers([_test_cookie])) != 2:
                     # convert expires date to seconds since epoch
                     if v.startswith('"'): v = v[1:]
                     if v.endswith('"'): v = v[:-1]
-                    v = cookielib.http2time(v)  # None if invalid
+                    v = http.cookiejar.http2time(v)  # None if invalid
             pairs.append((k, v))
         if pairs:
             if not version_set:
                 pairs.append(("version", "0"))
             result.append(pairs)
       return result
-    cookielib.parse_ns_headers = parse_ns_headers
-    assert len(cookielib.parse_ns_headers([_test_cookie])) == 2
+    http.cookiejar.parse_ns_headers = parse_ns_headers
+    assert len(http.cookiejar.parse_ns_headers([_test_cookie])) == 2
 

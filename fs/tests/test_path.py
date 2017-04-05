@@ -23,7 +23,7 @@ class TestPathFunctions(unittest.TestCase):
                     ("a/b/c", "a/b/c"),
                     ("a/b/../c/", "a/c"),
                     ("/","/"),
-                    (u"a/\N{GREEK SMALL LETTER BETA}/c",u"a/\N{GREEK SMALL LETTER BETA}/c"),
+                    ("a/\N{GREEK SMALL LETTER BETA}/c","a/\N{GREEK SMALL LETTER BETA}/c"),
                     ]
         for path, result in tests:
             self.assertEqual(normpath(path), result)
@@ -44,7 +44,7 @@ class TestPathFunctions(unittest.TestCase):
                     ("a/b", "./d", "e", "a/b/d/e"),
                     ("/", "/", "/"),
                     ("/", "", "/"),
-                    (u"a/\N{GREEK SMALL LETTER BETA}","c",u"a/\N{GREEK SMALL LETTER BETA}/c"),
+                    ("a/\N{GREEK SMALL LETTER BETA}","c","a/\N{GREEK SMALL LETTER BETA}/c"),
         ]
         for testpaths in tests:
             paths = testpaths[:-1]
@@ -101,12 +101,12 @@ class TestPathFunctions(unittest.TestCase):
             self.assertEqual(pathsplit(path), result)
 
     def test_recursepath(self):
-        self.assertEquals(recursepath("/"),["/"])
-        self.assertEquals(recursepath("hello"),["/","/hello"])
-        self.assertEquals(recursepath("/hello/world/"),["/","/hello","/hello/world"])
-        self.assertEquals(recursepath("/hello/world/",reverse=True),["/hello/world","/hello","/"])
-        self.assertEquals(recursepath("hello",reverse=True),["/hello","/"])
-        self.assertEquals(recursepath("",reverse=True),["/"])
+        self.assertEqual(recursepath("/"),["/"])
+        self.assertEqual(recursepath("hello"),["/","/hello"])
+        self.assertEqual(recursepath("/hello/world/"),["/","/hello","/hello/world"])
+        self.assertEqual(recursepath("/hello/world/",reverse=True),["/hello/world","/hello","/"])
+        self.assertEqual(recursepath("hello",reverse=True),["/hello","/"])
+        self.assertEqual(recursepath("",reverse=True),["/"])
 
     def test_isdotfile(self):
         for path in ['.foo',
@@ -114,7 +114,7 @@ class TestPathFunctions(unittest.TestCase):
                      'foo/.svn',
                      'foo/bar/.svn',
                      '/foo/.bar']:
-            self.assert_(isdotfile(path))
+            self.assertTrue(isdotfile(path))
 
         for path in ['asfoo',
                      'df.svn',
@@ -142,10 +142,10 @@ class TestPathFunctions(unittest.TestCase):
             self.assertEqual(basename(path), test_basename)
 
     def test_iswildcard(self):
-        self.assert_(iswildcard('*'))
-        self.assert_(iswildcard('*.jpg'))
-        self.assert_(iswildcard('foo/*'))
-        self.assert_(iswildcard('foo/{}'))
+        self.assertTrue(iswildcard('*'))
+        self.assertTrue(iswildcard('*.jpg'))
+        self.assertTrue(iswildcard('foo/*'))
+        self.assertTrue(iswildcard('foo/{}'))
         self.assertFalse(iswildcard('foo'))
         self.assertFalse(iswildcard('img.jpg'))
         self.assertFalse(iswildcard('foo/bar'))
@@ -171,9 +171,9 @@ class Test_PathMap(unittest.TestCase):
     def test_basics(self):
         map = PathMap()
         map["hello"] = "world"
-        self.assertEquals(map["/hello"],"world")
-        self.assertEquals(map["/hello/"],"world")
-        self.assertEquals(map.get("hello"),"world")
+        self.assertEqual(map["/hello"],"world")
+        self.assertEqual(map["/hello/"],"world")
+        self.assertEqual(map.get("hello"),"world")
 
     def test_iteration(self):
         map = PathMap()
@@ -183,17 +183,17 @@ class Test_PathMap(unittest.TestCase):
         map["hello/kitty"] = 4
         map["hello/kitty/islame"] = 5
         map["batman/isawesome"] = 6
-        self.assertEquals(set(map.iterkeys()),set(("/hello/world","/hello/world/howareya","/hello/world/iamfine","/hello/kitty","/hello/kitty/islame","/batman/isawesome")))
-        self.assertEquals(sorted(map.values()),range(1,7))
-        self.assertEquals(sorted(map.items("/hello/world/")),[("/hello/world",1),("/hello/world/howareya",2),("/hello/world/iamfine",3)])
-        self.assertEquals(zip(map.keys(),map.values()),map.items())
-        self.assertEquals(zip(map.keys("batman"),map.values("batman")),map.items("batman"))
-        self.assertEquals(set(map.iternames("hello")),set(("world","kitty")))
-        self.assertEquals(set(map.iternames("/hello/kitty")),set(("islame",)))
+        self.assertEqual(set(map.keys()),set(("/hello/world","/hello/world/howareya","/hello/world/iamfine","/hello/kitty","/hello/kitty/islame","/batman/isawesome")))
+        self.assertEqual(sorted(map.values()),list(range(1,7)))
+        self.assertEqual(sorted(map.items("/hello/world/")),[("/hello/world",1),("/hello/world/howareya",2),("/hello/world/iamfine",3)])
+        self.assertEqual(list(zip(list(map.keys()),list(map.values()))),list(map.items()))
+        self.assertEqual(list(zip(map.keys("batman"),map.values("batman"))),map.items("batman"))
+        self.assertEqual(set(map.iternames("hello")),set(("world","kitty")))
+        self.assertEqual(set(map.iternames("/hello/kitty")),set(("islame",)))
 
         del map["hello/kitty/islame"]
-        self.assertEquals(set(map.iternames("/hello/kitty")),set())
-        self.assertEquals(set(map.iterkeys()),set(("/hello/world","/hello/world/howareya","/hello/world/iamfine","/hello/kitty","/batman/isawesome")))
-        self.assertEquals(set(map.values()),set(range(1,7)) - set((5,)))
+        self.assertEqual(set(map.iternames("/hello/kitty")),set())
+        self.assertEqual(set(map.keys()),set(("/hello/world","/hello/world/howareya","/hello/world/iamfine","/hello/kitty","/batman/isawesome")))
+        self.assertEqual(set(map.values()),set(range(1,7)) - set((5,)))
 
 

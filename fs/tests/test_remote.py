@@ -116,37 +116,37 @@ class TestRemoteFileBuffer(unittest.TestCase, FSTestCases, ThreadingTestCases):
         self.fakeOn()
 
         f = self.fs.open('test.txt', 'rb')
-        self.assertEquals(f.read(10), contents[:10])
+        self.assertEqual(f.read(10), contents[:10])
         f.wrapped_file.seek(0, SEEK_END)
-        self.assertEquals(f._rfile.tell(), 10)
+        self.assertEqual(f._rfile.tell(), 10)
         f.seek(20)
-        self.assertEquals(f.tell(), 20)
-        self.assertEquals(f._rfile.tell(), 20)
+        self.assertEqual(f.tell(), 20)
+        self.assertEqual(f._rfile.tell(), 20)
         f.seek(0, SEEK_END)
-        self.assertEquals(f._rfile.tell(), len(contents))
+        self.assertEqual(f._rfile.tell(), len(contents))
         f.close()
 
         f = self.fs.open('test.txt', 'ab')
-        self.assertEquals(f.tell(), len(contents))
+        self.assertEqual(f.tell(), len(contents))
         f.close()
 
         self.fakeOff()
 
         # Writing over the rfile edge
         f = self.fs.open('test.txt', 'wb+')
-        self.assertEquals(f.tell(), 0)
+        self.assertEqual(f.tell(), 0)
         f.seek(len(contents) - 5)
         # Last 5 characters not loaded from remote file
-        self.assertEquals(f._rfile.tell(), len(contents) - 5)
+        self.assertEqual(f._rfile.tell(), len(contents) - 5)
         # Confirm that last 5 characters are still in rfile buffer
-        self.assertEquals(f._rfile.read(), contents[-5:])
+        self.assertEqual(f._rfile.read(), contents[-5:])
         # Rollback position 5 characters before eof
         f._rfile.seek(len(contents[:-5]))
         # Write 10 new characters (will make contents longer for 5 chars)
         f.write(b('1234567890'))
         f.flush()
         # We are on the end of file (and buffer not serve anything anymore)
-        self.assertEquals(f.read(), b(''))
+        self.assertEqual(f.read(), b(''))
         f.close()
 
         self.fakeOn()
@@ -154,7 +154,7 @@ class TestRemoteFileBuffer(unittest.TestCase, FSTestCases, ThreadingTestCases):
         # Check if we wrote everything OK from
         # previous writing over the remote buffer edge
         f = self.fs.open('test.txt', 'rb')
-        self.assertEquals(f.read(), contents[:-5] + b('1234567890'))
+        self.assertEqual(f.read(), contents[:-5] + b('1234567890'))
         f.close()
 
         self.fakeOff()
@@ -199,36 +199,36 @@ class TestRemoteFileBuffer(unittest.TestCase, FSTestCases, ThreadingTestCases):
 
         f = self.fs.open('test.txt', 'rb+')
         # Check if we read just 10 characters
-        self.assertEquals(f.read(10), contents[:10])
-        self.assertEquals(f._rfile.tell(), 10)
+        self.assertEqual(f.read(10), contents[:10])
+        self.assertEqual(f._rfile.tell(), 10)
         # Write garbage to file to mark it as _changed
         f.write(b('x'))
         # This should read the rest of file and store file back to again.
         f.flush()
         f.seek(0)
         # Try if we have unocrrupted file locally...
-        self.assertEquals(f.read(), contents[:10] + b('x') + contents[11:])
+        self.assertEqual(f.read(), contents[:10] + b('x') + contents[11:])
         f.close()
 
         # And if we have uncorrupted file also on storage
         f = self.fs.open('test.txt', 'rb')
-        self.assertEquals(f.read(), contents[:10] + b('x') + contents[11:])
+        self.assertEqual(f.read(), contents[:10] + b('x') + contents[11:])
         f.close()
 
         # Now try it again, but write garbage behind edge of remote file
         f = self.fs.open('test.txt', 'rb+')
-        self.assertEquals(f.read(10), contents[:10])
+        self.assertEqual(f.read(10), contents[:10])
         # Write garbage to file to mark it as _changed
         f.write(contents2)
         f.flush()
         f.seek(0)
         # Try if we have unocrrupted file locally...
-        self.assertEquals(f.read(), contents[:10] + contents2)
+        self.assertEqual(f.read(), contents[:10] + contents2)
         f.close()
 
         # And if we have uncorrupted file also on storage
         f = self.fs.open('test.txt', 'rb')
-        self.assertEquals(f.read(), contents[:10] + contents2)
+        self.assertEqual(f.read(), contents[:10] + contents2)
         f.close()
 
 

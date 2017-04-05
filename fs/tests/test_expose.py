@@ -149,7 +149,7 @@ if dokan.is_available:
 
         def tearDown(self):
             self.mount_proc.unmount()
-            for _ in xrange(10):
+            for _ in range(10):
                 try:
                     if self.mount_proc.poll() is None:
                         self.mount_proc.terminate()

@@ -10,7 +10,7 @@ import tempfile
 import subprocess
 import time
 from os.path import abspath
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from six import PY3
 
@@ -37,7 +37,7 @@ class TestFTPFS(unittest.TestCase, FSTestCases, ThreadingTestCases):
         ftp_port += 1
         use_port = str(ftp_port)
         #ftp_port = 10000
-        self.temp_dir = tempfile.mkdtemp(u"ftpfstests")
+        self.temp_dir = tempfile.mkdtemp("ftpfstests")
 
         file_path = __file__
         if ':' not in file_path:
@@ -58,7 +58,7 @@ class TestFTPFS(unittest.TestCase, FSTestCases, ThreadingTestCases):
         start_time = time.time()
         while time.time() - start_time < 5:
             try:
-                ftpurl = urllib.urlopen('ftp://127.0.0.1:%s' % use_port)
+                ftpurl = urllib.request.urlopen('ftp://127.0.0.1:%s' % use_port)
             except IOError:
                 time.sleep(0)
             else:

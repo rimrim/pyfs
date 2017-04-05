@@ -9,7 +9,7 @@ total size of files stored in the wrapped FS.
 
 """
 
-from __future__ import with_statement
+
 
 from fs.errors import *
 from fs.path import *

@@ -149,7 +149,7 @@ class _ExceptionProxy(object):
     def __setattr__(self, name, value):
         raise ValueError("File has been closed")
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
 
@@ -193,7 +193,7 @@ class BigFS(FS):
         return "<BigFS: %s>" % self.big_path
 
     def __unicode__(self):
-        return unicode(self.__str__())
+        return str(self.__str__())
 
 
     def _parse_resource_list(self, g):

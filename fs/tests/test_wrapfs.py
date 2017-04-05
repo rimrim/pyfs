@@ -26,7 +26,7 @@ class TestWrapFS(unittest.TestCase, FSTestCases, ThreadingTestCases):
     #__test__ = False
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(u"fstest")
+        self.temp_dir = tempfile.mkdtemp("fstest")
         self.fs = wrapfs.WrapFS(osfs.OSFS(self.temp_dir))
 
     def tearDown(self):
@@ -41,7 +41,7 @@ from fs.wrapfs.lazyfs import LazyFS
 class TestLazyFS(unittest.TestCase, FSTestCases, ThreadingTestCases):
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(u"fstest")
+        self.temp_dir = tempfile.mkdtemp("fstest")
         self.fs = LazyFS((osfs.OSFS,(self.temp_dir,)))
 
     def tearDown(self):
@@ -63,13 +63,13 @@ class TestLimitSizeFS(TestWrapFS):
 
     def tearDown(self):
         remove_all(self.fs, "/")
-        self.assertEquals(self.fs.cur_size,0)
+        self.assertEqual(self.fs.cur_size,0)
         super(TestLimitSizeFS,self).tearDown()
         self.fs.close()
 
     def test_storage_error(self):
         total_written = 0
-        for i in xrange(1024*2):
+        for i in range(1024*2):
             try:
                 total_written += 1030
                 self.fs.setcontents("file %i" % i, b("C")*1030)
@@ -85,11 +85,11 @@ from fs.wrapfs.hidedotfilesfs import HideDotFilesFS
 class TestHideDotFilesFS(unittest.TestCase):
 
     def setUp(self):
-        self.temp_dir = tempfile.mkdtemp(u"fstest")
-        open(os.path.join(self.temp_dir, u".dotfile"), 'w').close()
-        open(os.path.join(self.temp_dir, u"regularfile"), 'w').close()
-        os.mkdir(os.path.join(self.temp_dir, u".dotdir"))
-        os.mkdir(os.path.join(self.temp_dir, u"regulardir"))
+        self.temp_dir = tempfile.mkdtemp("fstest")
+        open(os.path.join(self.temp_dir, ".dotfile"), 'w').close()
+        open(os.path.join(self.temp_dir, "regularfile"), 'w').close()
+        os.mkdir(os.path.join(self.temp_dir, ".dotdir"))
+        os.mkdir(os.path.join(self.temp_dir, "regulardir"))
         self.fs = HideDotFilesFS(osfs.OSFS(self.temp_dir))
 
     def tearDown(self):
@@ -97,15 +97,15 @@ class TestHideDotFilesFS(unittest.TestCase):
         self.fs.close()
 
     def test_hidden(self):
-        self.assertEquals(len(self.fs.listdir(hidden=False)), 2)
-        self.assertEquals(len(list(self.fs.ilistdir(hidden=False))), 2)
+        self.assertEqual(len(self.fs.listdir(hidden=False)), 2)
+        self.assertEqual(len(list(self.fs.ilistdir(hidden=False))), 2)
 
     def test_nonhidden(self):
-        self.assertEquals(len(self.fs.listdir(hidden=True)), 4)
-        self.assertEquals(len(list(self.fs.ilistdir(hidden=True))), 4)
+        self.assertEqual(len(self.fs.listdir(hidden=True)), 4)
+        self.assertEqual(len(list(self.fs.ilistdir(hidden=True))), 4)
 
     def test_default(self):
-        self.assertEquals(len(self.fs.listdir()), 2)
-        self.assertEquals(len(list(self.fs.ilistdir())), 2)
+        self.assertEqual(len(self.fs.listdir()), 2)
+        self.assertEqual(len(list(self.fs.ilistdir())), 2)
 
 

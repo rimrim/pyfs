@@ -19,7 +19,7 @@ except ImportError:
     try:
         import json
     except ImportError:
-        print "simplejson (http://pypi.python.org/pypi/simplejson/) required"
+        print("simplejson (http://pypi.python.org/pypi/simplejson/) required")
         raise
 
 from .connection import Connection
@@ -29,22 +29,22 @@ python3 = int(platform.python_version_tuple()[0]) > 2
 if python3:
     from urllib.error import HTTPError
 else:
-    from urllib2 import HTTPError
+    from urllib.error import HTTPError
 
 class TahoeUtil:
     def __init__(self, webapi):
         self.connection = Connection(webapi)
 
     def createdircap(self):
-        return self.connection.post(u'/uri', params={u't': u'mkdir'}).read()
+        return self.connection.post('/uri', params={'t': 'mkdir'}).read()
 
     def unlink(self, dircap, path=None):
         path = self.fixwinpath(path, False)
-        self.connection.delete(u'/uri/%s%s' % (dircap, path))
+        self.connection.delete('/uri/%s%s' % (dircap, path))
 
     def info(self, dircap, path):
         path = self.fixwinpath(path, False)
-        meta = json.load(self.connection.get(u'/uri/%s%s' % (dircap, path), {u't': u'json'}))
+        meta = json.load(self.connection.get('/uri/%s%s' % (dircap, path), {'t': 'json'}))
         return self._info(path, meta)
 
     def fixwinpath(self, path, direction=True):
@@ -74,7 +74,7 @@ class TahoeUtil:
         if type == 'unknown':
             raise errors.ResourceNotFoundError(path)
 
-        info = {'name': unicode(self.fixwinpath(path, True)),
+        info = {'name': str(self.fixwinpath(path, True)),
                 'type': type,
                 'size': data.get('size', 0),
                 'ctime': None,
@@ -83,22 +83,22 @@ class TahoeUtil:
             info['ctime'] = data['metadata'].get('ctime')
 
         if info['type'] == 'dirnode':
-            info['st_mode'] = 0777 |  statinfo.S_IFDIR
+            info['st_mode'] = 0o777 |  statinfo.S_IFDIR
         else:
-            info['st_mode'] = 0644
+            info['st_mode'] = 0o644
 
         return info
 
     def list(self, dircap, path=None):
         path = self.fixwinpath(path, False)
 
-        data = json.load(self.connection.get(u'/uri/%s%s' % (dircap, path), {u't': u'json'}))
+        data = json.load(self.connection.get('/uri/%s%s' % (dircap, path), {'t': 'json'}))
 
         if len(data) < 2 or data[0] != 'dirnode':
             raise errors.ResourceInvalidError('Metadata in unknown format!')
 
         data = data[1]['children']
-        for i in data.keys():
+        for i in list(data.keys()):
             x = self._info(i, data[i])
             yield x
 
@@ -106,7 +106,7 @@ class TahoeUtil:
         path = self.fixwinpath(path, False)
         path = pathsplit(path)
 
-        self.connection.post(u"/uri/%s%s" % (dircap, path[0]), data={u't': u'mkdir', u'name': path[1]})
+        self.connection.post("/uri/%s%s" % (dircap, path[0]), data={'t': 'mkdir', 'name': path[1]})
 
     def move(self, dircap, src, dst):
         if src == '/' or dst == '/':
@@ -120,8 +120,8 @@ class TahoeUtil:
 
         if src_tuple[0] == dst_tuple[0]:
             # Move inside one directory
-            self.connection.post(u"/uri/%s%s" % (dircap, src_tuple[0]), data={u't': u'rename',
-                                        u'from_name': src_tuple[1], u'to_name': dst_tuple[1]})
+            self.connection.post("/uri/%s%s" % (dircap, src_tuple[0]), data={'t': 'rename',
+                                        'from_name': src_tuple[1], 'to_name': dst_tuple[1]})
             return
 
         # Move to different directory. Firstly create link on dst, then remove from src
@@ -133,7 +133,7 @@ class TahoeUtil:
             self.unlink(dircap, dst)
 
         uri = self.info(dircap, src)['uri']
-        self.connection.put(u"/uri/%s%s" % (dircap, dst), data=uri, params={u't': u'uri'})
+        self.connection.put("/uri/%s%s" % (dircap, dst), data=uri, params={'t': 'uri'})
         if uri != self.info(dircap, dst)['uri']:
             raise errors.OperationFailedError('Move failed')
 

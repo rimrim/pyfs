@@ -72,7 +72,7 @@ from fs.filelike import FileWrapper
 from os import getcwd
 import os.path
 import re
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 class OpenerError(Exception):
     """The base exception thrown by openers"""
@@ -794,7 +794,7 @@ example:
     def get_fs(cls, registry, fs_name, fs_name_params, fs_path, writeable, create_dir):
 
         from fs.mountfs import MountFS
-        from ConfigParser import ConfigParser
+        from configparser import ConfigParser
         cfg = ConfigParser()
 
         if '#' in fs_path:
@@ -830,7 +830,7 @@ example:
     def get_fs(cls, registry, fs_name, fs_name_params, fs_path, writeable, create_dir):
 
         from fs.multifs import MultiFS
-        from ConfigParser import ConfigParser
+        from configparser import ConfigParser
         cfg = ConfigParser()
 
         if '#' in fs_path:

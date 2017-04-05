@@ -18,7 +18,7 @@ from fs.watch import *
 
 try:
     import pyinotify
-except Exception, e:
+except Exception as e:
     #  pyinotify sometimes raises its own custom errors on import.
     #  How on earth are we supposed to catch them when we can't import them?
     if isinstance(e,ImportError):
@@ -39,7 +39,7 @@ class OSFSWatchMixin(WatchableFSMixin):
     def close(self):
         super(OSFSWatchMixin,self).close()
         self.notify_watchers(CLOSED)
-        for watcher_list in self._watchers.values():
+        for watcher_list in list(self._watchers.values()):
             for watcher in watcher_list:
                 self.del_watcher(watcher)
         self.__watch_lock.acquire()
@@ -58,7 +58,7 @@ class OSFSWatchMixin(WatchableFSMixin):
         w = super_add_watcher(callback,path,events,recursive)
         w._pyinotify_id = None
         syspath = self.getsyspath(path)
-        if isinstance(syspath,unicode):
+        if isinstance(syspath,str):
             syspath = syspath.encode(sys.getfilesystemencoding())
         #  Each watch gets its own WatchManager, since it's tricky to make
         #  a single WatchManager handle multiple callbacks with different
@@ -73,7 +73,7 @@ class OSFSWatchMixin(WatchableFSMixin):
         kwds = dict(rec=recursive,auto_add=recursive,quiet=False)
         try:
             wids = wm.add_watch(syspath,evtmask,process_events,**kwds)
-        except pyinotify.WatchManagerError, e:
+        except pyinotify.WatchManagerError as e:
             raise OperationFailedError("add_watcher",details=e)
         w._pyinotify_id = wids[syspath]
         self.__watch_lock.acquire()
@@ -239,7 +239,7 @@ class SharedThreadedNotifier(threading.Thread):
         while self.running:
             try:
                 ready_fds = self._poller.poll()
-            except _select_error, e:
+            except _select_error as e:
                 if e[0] != errno.EINTR:
                     raise
             else:

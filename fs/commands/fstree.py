@@ -34,7 +34,7 @@ Recursively display the contents of PATH in an ascii tree"""
 
         for fs, path, is_dir in self.get_resources(args, single=True):
             if not is_dir:
-                self.error(u"'%s' is not a dir\n" % path)
+                self.error("'%s' is not a dir\n" % path)
                 return 1
             fs.cache_hint(True)
             if options.gui:

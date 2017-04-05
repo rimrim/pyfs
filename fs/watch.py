@@ -32,7 +32,7 @@ an iterator over the change events.
 import sys
 import weakref
 import threading
-import Queue
+import queue
 import traceback
 
 from fs.path import *
@@ -54,10 +54,10 @@ class EVENT(object):
         self.path = path
 
     def __str__(self):
-        return unicode(self).encode("utf8")
+        return str(self).encode("utf8")
 
     def __unicode__(self):
-        return u"<fs.watch.%s object (path='%s') at %s>" % (self.__class__.__name__,self.path,hex(id(self)))
+        return "<fs.watch.%s object (path='%s') at %s>" % (self.__class__.__name__,self.path,hex(id(self)))
 
     def clone(self,fs=None,path=None):
         if fs is None:
@@ -102,7 +102,7 @@ class MOVED_DST(EVENT):
         self.source = source
 
     def __unicode__(self):
-        return u"<fs.watch.%s object (path=%r,src=%r) at %s>" % (self.__class__.__name__,self.path,self.source,hex(id(self)))
+        return "<fs.watch.%s object (path=%r,src=%r) at %s>" % (self.__class__.__name__,self.path,self.source,hex(id(self)))
 
     def clone(self,fs=None,path=None,source=None):
         evt = super(MOVED_DST,self).clone(fs,path)
@@ -120,7 +120,7 @@ class MOVED_SRC(EVENT):
         self.destination = destination
 
     def __unicode__(self):
-        return u"<fs.watch.%s object (path=%r,dst=%r) at %s>" % (self.__class__.__name__,self.path,self.destination,hex(id(self)))
+        return "<fs.watch.%s object (path=%r,dst=%r) at %s>" % (self.__class__.__name__,self.path,self.destination,hex(id(self)))
 
     def clone(self,fs=None,path=None,destination=None):
         evt = super(MOVED_SRC,self).clone(fs,path)
@@ -182,7 +182,7 @@ class Watcher(object):
         try:
             self.callback(event)
         except Exception:
-            print >>sys.stderr, "error in FS watcher callback", self.callback
+            print("error in FS watcher callback", self.callback, file=sys.stderr)
             traceback.print_exc()
 
 
@@ -213,7 +213,7 @@ class WatchableFSMixin(FS):
         if isinstance(watcher_or_callback,Watcher):
             self._watchers[watcher_or_callback.path].remove(watcher_or_callback)
         else:
-            for watchers in self._watchers.itervalues():
+            for watchers in self._watchers.values():
                 for i,watcher in enumerate(watchers):
                     if watcher.callback is watcher_or_callback:
                         del watchers[i]
@@ -221,7 +221,7 @@ class WatchableFSMixin(FS):
 
     def _find_watchers(self,callback):
         """Find watchers registered with the given callback."""
-        for watchers in self._watchers.itervalues():
+        for watchers in self._watchers.values():
             for watcher in watchers:
                 if watcher.callback is callback:
                     yield watcher
@@ -235,7 +235,7 @@ class WatchableFSMixin(FS):
         if path is None:
             path = event.path
         if path is None:
-            for watchers in self._watchers.itervalues():
+            for watchers in self._watchers.values():
                 for watcher in watchers:
                     watcher.handle_event(event)
         else:
@@ -443,7 +443,7 @@ class WatchableFS(WatchableFSMixin,WrapFS):
 
     def _post_move(self,src,dst,data):
         (src_paths,dst_paths) = data
-        for src_path,isdir in sorted(src_paths.items(),reverse=True):
+        for src_path,isdir in sorted(list(src_paths.items()),reverse=True):
             path = pathjoin(src,src_path)
             self.notify_watchers(REMOVED,path)
 
@@ -554,7 +554,7 @@ class PollingWatchableFS(WatchableFS):
             else:
                 was_accessed = False
                 was_modified = False
-                for (k,v) in new_info.iteritems():
+                for (k,v) in new_info.items():
                     if k not in old_info:
                         was_modified = True
                         break
@@ -612,7 +612,7 @@ class iter_changes(object):
 
     def __init__(self,fs=None,path="/",events=None,**kwds):
         self.closed = False
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._watching = set()
         if fs is not None:
             self.add_watcher(fs,path,events,**kwds)
@@ -628,7 +628,7 @@ class iter_changes(object):
             raise StopIteration
         try:
             event = self._queue.get(timeout=timeout)
-        except Queue.Empty:
+        except queue.Empty:
             raise StopIteration
         if event is None:
             raise StopIteration

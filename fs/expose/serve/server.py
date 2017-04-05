@@ -1,8 +1,8 @@
-from __future__ import with_statement
+
 
 import socket
 import threading
-from packetstream import JSONDecoder, JSONFileEncoder
+from .packetstream import JSONDecoder, JSONFileEncoder
 
 
 
@@ -60,7 +60,7 @@ class ConnectionHandlerBase(threading.Thread):
 
                         self._methods[name] = method
 
-        print self._methods
+        print(self._methods)
 
         self.fs = None
 
@@ -69,14 +69,14 @@ class ConnectionHandlerBase(threading.Thread):
         while True:
             try:
                 data = self.transport.read(4096)
-            except socket.error, socket_error:
-                print socket_error
+            except socket.error as socket_error:
+                print(socket_error)
                 self.socket_error = socket_error
                 break
-            print "data", repr(data)
+            print("data", repr(data))
             if data:
                 for packet in self.decoder.feed(data):
-                    print repr(packet)
+                    print(repr(packet))
                     self.on_packet(*packet)
             else:
                 break
@@ -92,13 +92,13 @@ class ConnectionHandlerBase(threading.Thread):
         self.server.on_connection_close(self.connection_id)
 
     def on_stream_prelude(self, packet_stream, prelude):
-        print "prelude", prelude
+        print("prelude", prelude)
         return True
 
     def on_packet(self, header, payload):
-        print '-' * 30
-        print repr(header)
-        print repr(payload)
+        print('-' * 30)
+        print(repr(header))
+        print(repr(payload))
         if header['type'] == 'rpc':
             method = header['method']
             args = header['args']
@@ -110,7 +110,7 @@ class ConnectionHandlerBase(threading.Thread):
                 response = method_callable(*args, **kwargs)
                 remote['response'] = response
                 self.encoder.write(remote, '')
-            except RemoteResponse, response:
+            except RemoteResponse as response:
                 self.encoder.write(response.header, response.payload)
 
 class RemoteFSConnection(ConnectionHandlerBase):
@@ -156,20 +156,20 @@ class Server(object):
     def _close_graceful(self):
         """Tell all threads to exit and wait for them"""
         with self._lock:
-            for connection in self.threads.itervalues():
+            for connection in self.threads.values():
                 connection.close()
-            for connection in self.threads.itervalues():
+            for connection in self.threads.values():
                 connection.join()
             self.threads.clear()
 
     def _close_harsh(self):
         with self._lock:
-            for connection in self.threads.itervalues():
+            for connection in self.threads.values():
                 connection.close()
             self.threads.clear()
 
     def on_connect(self, clientsocket, address):
-        print "Connection from", address
+        print("Connection from", address)
         with self._lock:
             self.connection_id += 1
             thread = self.connection_factory(self,

@@ -82,7 +82,7 @@ Serves the contents of PATH with one of a number of methods"""
                 try:
                     self.output("Starting sftp server on %s:%i\n" % (options.addr, port), verbose=True)
                     server.serve_forever()
-                except Exception, e:
+                except Exception as e:
                     pass
                 finally:
                     server.server_close()
@@ -90,7 +90,7 @@ Serves the contents of PATH with one of a number of methods"""
             else:
                 self.error("Server type '%s' not recognised\n" % options.type)
 
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.EACCES:
                 self.error('Permission denied\n')
                 return 1

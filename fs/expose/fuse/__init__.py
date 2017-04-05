@@ -56,7 +56,7 @@ import errno
 import time
 import stat as statinfo
 import subprocess
-import cPickle
+import pickle
 
 import logging
 logger = logging.getLogger("fs.expose.fuse")
@@ -404,9 +404,9 @@ class FSOperations(Operations):
         #  The interesting stuff
         if 'st_mode' not in info:
             if self.fs.isdir(path):
-                info['st_mode'] = 0755
+                info['st_mode'] = 0o755
             else:
-                info['st_mode'] = 0666
+                info['st_mode'] = 0o666
         mode = info['st_mode']
         if not statinfo.S_ISDIR(mode) and not statinfo.S_ISREG(mode):
             if self.fs.isdir(path):
@@ -432,7 +432,7 @@ class FSOperations(Operations):
         except KeyError:
             pass
         else:
-            info["st_size"] = max(written_sizes.values() + [info["st_size"]])
+            info["st_size"] = max(list(written_sizes.values()) + [info["st_size"]])
         return info
 
 
@@ -491,7 +491,7 @@ def unmount(path):
     else:
         args = ["fusermount", "-u", path]
 
-    for num_tries in xrange(3):
+    for num_tries in range(3):
         p = subprocess.Popen(args,
                              stderr=subprocess.PIPE,
                              stdout=subprocess.PIPE)
@@ -554,7 +554,7 @@ class MountProcess(subprocess.Popen):
             cmd = cmd + 'data = loads(%s); '
             cmd = cmd + 'from fs.expose.fuse import MountProcess; '
             cmd = cmd + 'MountProcess._do_mount_nowait(data)'
-            cmd = cmd % (repr(cPickle.dumps((fs, path, fuse_opts), -1)),)
+            cmd = cmd % (repr(pickle.dumps((fs, path, fuse_opts), -1)),)
             cmd = [sys.executable, "-c", cmd]
             super(MountProcess, self).__init__(cmd, **kwds)
         else:
@@ -567,7 +567,7 @@ class MountProcess(subprocess.Popen):
             cmd = cmd + 'data = loads(%s); '
             cmd = cmd + 'from fs.expose.fuse import MountProcess; '
             cmd = cmd + 'MountProcess._do_mount_wait(data)'
-            cmd = cmd % (repr(cPickle.dumps((fs, path, fuse_opts, r, w), -1)),)
+            cmd = cmd % (repr(pickle.dumps((fs, path, fuse_opts, r, w), -1)),)
             cmd = [sys.executable, "-c", cmd]
             super(MountProcess, self).__init__(cmd, **kwds)
             os.close(w)
@@ -635,8 +635,8 @@ class MountProcess(subprocess.Popen):
         opts["unmount_callback"] = unmount_callback
         try:
             mount(fs, path, **opts)
-        except Exception, e:
-            os.write(w, b("E") + unicode(e).encode('ascii', errors='replace'))
+        except Exception as e:
+            os.write(w, b("E") + str(e).encode('ascii', errors='replace'))
             os.close(w)
 
         if not successful:
@@ -653,5 +653,5 @@ if __name__ == "__main__":
         os.makedirs(mount_point)
 
     def ready_callback():
-        print "READY"
+        print("READY")
     mount(TempFS(), mount_point, foreground=True, ready_callback=ready_callback)

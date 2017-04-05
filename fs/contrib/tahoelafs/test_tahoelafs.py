@@ -35,7 +35,7 @@ class TestTahoeLAFS(unittest.TestCase,FSTestCases):#,ThreadingTestCases):
 
     def test_dircap(self):
         # Is dircap in correct format?
-        self.assert_(self.dircap.startswith('URI:DIR2:') and len(self.dircap) > 50)
+        self.assertTrue(self.dircap.startswith('URI:DIR2:') and len(self.dircap) > 50)
 
     def test_concurrent_copydir(self):
         #  makedir() on TahoeLAFS is currently not atomic

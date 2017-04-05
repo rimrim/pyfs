@@ -3,7 +3,7 @@ from fs.utils import copyfile, copyfile_non_atomic
 from fs.path import pathjoin, iswildcard
 from fs.commands.runner import Command
 import sys
-import Queue as queue
+import queue as queue
 import time
 import threading
 
@@ -31,7 +31,7 @@ class FileOpThread(threading.Thread):
                     self.dest_fs.makedir(path, recursive=True, allow_recreate=True)
                 else:
                     self.action(fs, path, self.dest_fs, dest_path, overwrite=True)
-            except Exception, e:
+            except Exception as e:
                 self.on_error(e)
                 self.queue.task_done()
                 break
@@ -147,7 +147,7 @@ Copy SOURCE to DESTINATION"""
                                 file_queue,
                                 self.on_done,
                                 self.on_error)
-                        for i in xrange(options.threads)]
+                        for i in range(options.threads)]
 
         for thread in threads:
             thread.start()
@@ -188,7 +188,7 @@ Copy SOURCE to DESTINATION"""
 
         if self.action_errors:
             for error in self.action_errors:
-                self.error(self.wrap_error(unicode(error)) + '\n')
+                self.error(self.wrap_error(str(error)) + '\n')
             sys.stdout.flush()
         else:
             if complete and options.progress:
@@ -204,9 +204,9 @@ Copy SOURCE to DESTINATION"""
         try:
             if self.options.verbose:
                 if path_type == self.DIR:
-                    print "mkdir %s" % dst_fs.desc(dst_path)
+                    print("mkdir %s" % dst_fs.desc(dst_path))
                 else:
-                    print "%s -> %s" % (src_fs.desc(src_path), dst_fs.desc(dst_path))
+                    print("%s -> %s" % (src_fs.desc(src_path), dst_fs.desc(dst_path)))
             elif self.options.progress:
                 self.done_files += 1
                 sys.stdout.write(self.progress_bar(self.total_files, self.done_files, self.get_verb()))

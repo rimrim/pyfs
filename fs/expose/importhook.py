@@ -60,7 +60,7 @@ class FSImportHook(object):
     def __init__(self,fs_or_url):
         #  If given a string, try to open it as an FS url.
         #  Don't open things on the local filesystem though.
-        if isinstance(fs_or_url,basestring):
+        if isinstance(fs_or_url,str):
             if ":/" not in fs_or_url:
                 raise ImportError
             try:
@@ -182,7 +182,7 @@ class FSImportHook(object):
         mod.__loader__ = self
         sys.modules[fullname] = mod
         try:
-            exec code in mod.__dict__
+            exec(code, mod.__dict__)
             mod.__file__ = self.get_filename(fullname,info)
             if self.is_package(fullname,info):
                 if self.path is None:
@@ -231,7 +231,7 @@ class FSImportHook(object):
         """Read the specified data file."""
         try:
             return self.fs.getcontents(path, 'rb')
-        except FSError, e:
+        except FSError as e:
             raise IOError(str(e))
 
     def get_filename(self,fullname,info=None):

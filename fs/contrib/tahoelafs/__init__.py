@@ -70,8 +70,8 @@ from fs import _thread_synchronize_default, SEEK_END
 from fs.remote import CacheFSMixin, RemoteFileBuffer
 from fs.base import fnmatch, NoDefaultMeta
 
-from util import TahoeUtil
-from connection import Connection
+from .util import TahoeUtil
+from .connection import Connection
 
 from six import b
 
@@ -240,7 +240,7 @@ class _TahoeLAFS(FS):
                 continue
 
             if wildcard is not None:
-                if isinstance(wildcard,basestring):
+                if isinstance(wildcard,str):
                     if not fnmatch.fnmatch(item['name'], wildcard):
                         continue
                 else:
@@ -269,7 +269,7 @@ class _TahoeLAFS(FS):
 
         try:
             self.tahoeutil.unlink(self.dircap, path)
-        except Exception, e:
+        except Exception as e:
             raise errors.ResourceInvalidError(path)
 
     @_fix_path
@@ -341,8 +341,8 @@ class _TahoeLAFS(FS):
 
     def _log(self, level, message):
         if not logger.isEnabledFor(level): return
-        logger.log(level, u'(%d) %s' % (id(self),
-                                unicode(message).encode('ASCII', 'replace')))
+        logger.log(level, '(%d) %s' % (id(self),
+                                str(message).encode('ASCII', 'replace')))
 
     @_fix_path
     def getpathurl(self, path, allow_none=False, webapi=None):
@@ -353,11 +353,11 @@ class _TahoeLAFS(FS):
             webapi = self.connection.webapi
         self._log(DEBUG, "Retrieving URL for %s over %s" % (path, webapi))
         path = self.tahoeutil.fixwinpath(path, False)
-        return u"%s/uri/%s%s" % (webapi, self.dircap, path)
+        return "%s/uri/%s%s" % (webapi, self.dircap, path)
 
     @_fix_path
     def getrange(self, path, offset, length=None):
-        return self.connection.get(u'/uri/%s%s' % (self.dircap, path),
+        return self.connection.get('/uri/%s%s' % (self.dircap, path),
                     offset=offset, length=length)
 
     @_fix_path
@@ -379,10 +379,10 @@ class _TahoeLAFS(FS):
             file.seek(0)
 
             if size > self.largefilesize:
-                self.connection.put(u'/uri/%s%s' % (self.dircap, path),
+                self.connection.put('/uri/%s%s' % (self.dircap, path),
                     "PyFilesystem.TahoeLAFS: Upload started, final size %d" % size)
 
-        self.connection.put(u'/uri/%s%s' % (self.dircap, path), file, size=size)
+        self.connection.put('/uri/%s%s' % (self.dircap, path), file, size=size)
 
     @_fix_path
     def getinfo(self, path):

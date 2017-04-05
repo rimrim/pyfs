@@ -1,1 +1,1 @@
-from wsgi import serve_fs
+from .wsgi import serve_fs

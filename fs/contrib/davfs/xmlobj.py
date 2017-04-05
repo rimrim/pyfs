@@ -9,9 +9,9 @@ of dexml.Model subclasses.
 
 """
 
-from urlparse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 
-from httplib import responses as STATUS_CODE_TEXT
+from http.client import responses as STATUS_CODE_TEXT
 STATUS_CODE_TEXT[207] = "Multi-Status"
 
 import dexml
@@ -86,7 +86,7 @@ class StatusField(fields.Value):
         return val
 
     def __set__(self,instance,value):
-        if isinstance(value,basestring):
+        if isinstance(value,str):
             # sanity check it
             bits = value.split(" ")
             if len(bits) < 3 or bits[0] != "HTTP/1.1":

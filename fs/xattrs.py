@@ -23,7 +23,7 @@ if it has native xattr support, and return a wrapped version if it does not.
 
 import sys
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -104,7 +104,7 @@ class SimulateXAttr(WrapFS):
         """Set an extended attribute on the given path."""
         if not self.exists(path):
             raise ResourceNotFoundError(path)
-        key = unicode(key)
+        key = str(key)
         attrs = self._get_attr_dict(path)
         attrs[key] = str(value)
         self._set_attr_dict(path, attrs)
@@ -133,7 +133,7 @@ class SimulateXAttr(WrapFS):
         """List all the extended attribute keys set on the given path."""
         if not self.exists(path):
             raise ResourceNotFoundError(path)
-        return self._get_attr_dict(path).keys()
+        return list(self._get_attr_dict(path).keys())
 
     def _encode(self,path):
         """Prevent requests for operations on .xattr files."""
@@ -189,7 +189,7 @@ class SimulateXAttr(WrapFS):
         d_attr_file = self._get_attr_path(dst)
         try:
             self.wrapped_fs.copy(s_attr_file,d_attr_file,overwrite=True)
-        except ResourceNotFoundError,e:
+        except ResourceNotFoundError as e:
             pass
 
     def move(self,src,dst,**kwds):

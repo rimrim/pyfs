@@ -84,6 +84,6 @@ class UserLogFS(OSFS):
 
 if __name__ == "__main__":
     udfs = UserDataFS('exampleapp', appauthor='pyfs')
-    print udfs
+    print(udfs)
     udfs2 = UserDataFS('exampleapp2', appauthor='pyfs', create=False)
-    print udfs2
+    print(udfs2)

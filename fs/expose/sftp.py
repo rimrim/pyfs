@@ -24,12 +24,12 @@ is, you probably don't want to use it.
 
 """
 
-from __future__ import with_statement
+
 
 import os
 import stat as statinfo
 import time
-import SocketServer
+import socketserver
 import threading
 
 import paramiko
@@ -73,11 +73,11 @@ def report_sftp_errors(func):
     def wrapper(*args,**kwds):
         try:
             return func(*args, **kwds)
-        except ResourceNotFoundError, e:
+        except ResourceNotFoundError as e:
             return paramiko.SFTP_NO_SUCH_FILE
-        except UnsupportedError, e:
+        except UnsupportedError as e:
             return paramiko.SFTP_OP_UNSUPPORTED
-        except FSError, e:
+        except FSError as e:
             return paramiko.SFTP_FAILURE
     return wrapper
 
@@ -114,7 +114,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     @report_sftp_errors
     def list_folder(self, path):
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.encoding)
         stats = []
         for entry in self.fs.listdir(path, absolute=True):
@@ -125,7 +125,7 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     @report_sftp_errors
     def stat(self, path):
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.encoding)
 
         info = self.fs.getinfo(path)
@@ -146,9 +146,9 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
                 stat.st_mtime = time.mktime(info.get("modified_time").timetuple())
 
         if isdir(self.fs, path, info):
-            stat.st_mode = 0777 | statinfo.S_IFDIR
+            stat.st_mode = 0o777 | statinfo.S_IFDIR
         else:
-            stat.st_mode = 0777 | statinfo.S_IFREG
+            stat.st_mode = 0o777 | statinfo.S_IFREG
         return stat
 
     def lstat(self, path):
@@ -156,16 +156,16 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     @report_sftp_errors
     def remove(self, path):
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.encoding)
         self.fs.remove(path)
         return paramiko.SFTP_OK
 
     @report_sftp_errors
     def rename(self, oldpath, newpath):
-        if not isinstance(oldpath, unicode):
+        if not isinstance(oldpath, str):
             oldpath = oldpath.decode(self.encoding)
-        if not isinstance(newpath, unicode):
+        if not isinstance(newpath, str):
             newpath = newpath.decode(self.encoding)
         if self.fs.isfile(oldpath):
             self.fs.move(oldpath, newpath)
@@ -175,14 +175,14 @@ class SFTPServerInterface(paramiko.SFTPServerInterface):
 
     @report_sftp_errors
     def mkdir(self, path, attr):
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.encoding)
         self.fs.makedir(path)
         return paramiko.SFTP_OK
 
     @report_sftp_errors
     def rmdir(self, path):
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.encoding)
         self.fs.removedir(path)
         return paramiko.SFTP_OK
@@ -224,7 +224,7 @@ class SFTPHandle(paramiko.SFTPHandle):
         super(SFTPHandle, self).__init__(flags)
         mode = flags_to_mode(flags)
         self.owner = owner
-        if not isinstance(path, unicode):
+        if not isinstance(path, str):
             path = path.decode(self.owner.encoding)
         self.path = path
         self._file = owner.fs.open(path, mode)
@@ -263,7 +263,7 @@ class SFTPServer(paramiko.SFTPServer):
         super(SFTPServer, self).finish_subsystem()
 
 
-class SFTPRequestHandler(SocketServer.BaseRequestHandler):
+class SFTPRequestHandler(socketserver.BaseRequestHandler):
     """SocketServer RequestHandler subclass for BaseSFTPServer.
 
     This RequestHandler subclass creates a paramiko Transport, sets up the
@@ -305,7 +305,7 @@ class SFTPRequestHandler(SocketServer.BaseRequestHandler):
 
 
 
-class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
@@ -334,7 +334,7 @@ class BaseSFTPServer(ThreadedTCPServer):
         self.host_key = host_key
         if RequestHandlerClass is None:
             RequestHandlerClass = SFTPRequestHandler
-        SocketServer.TCPServer.__init__(self, address, RequestHandlerClass)
+        socketserver.TCPServer.__init__(self, address, RequestHandlerClass)
 
     def shutdown_request(self, request):
         # Prevent TCPServer from closing the connection prematurely
