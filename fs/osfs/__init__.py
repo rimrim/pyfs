@@ -228,7 +228,7 @@ class OSFS(OSFSXAttrMixin, OSFSWatchMixin, FS):
 
     @convert_os_errors
     def open(self, path, mode='r', buffering=-1, encoding=None, errors=None, newline=None, line_buffering=False, **kwargs):
-        mode = ''.join(c for c in mode if c in 'rwabt+')
+        mode = ''.join(c for c in mode if c in 'rwabtx+')
         sys_path = self.getsyspath(path)
         if not encoding and 'b' not in mode:
             encoding = encoding or 'utf-8'

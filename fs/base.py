@@ -1422,7 +1422,7 @@ def flags_to_mode(flags, binary=True):
         else:
             mode = "r+"
     elif flags & os.O_RDWR:
-        if flags & os.O_TRUNC:
+        if flags & os.O_TRUNC or flags & os.O_CREAT:
             mode = "w+"
         elif flags & os.O_APPEND:
             mode = "a+"
@@ -1430,8 +1430,10 @@ def flags_to_mode(flags, binary=True):
             mode = "r+"
     else:
         mode = "r"
+
     if flags & os.O_EXCL:
-        mode += "x"
+        mode = "x+"
+
     if binary:
         mode += 'b'
     else:
