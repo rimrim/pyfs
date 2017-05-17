@@ -50,7 +50,6 @@ if sys.platform == "win32":
     raise ImportError("FUSE is not available on win32")
 
 import datetime
-import os
 import signal
 import errno
 import time
@@ -373,7 +372,17 @@ class FSOperations(Operations):
         (file, path, lock) = self._get_file(fh)
         lock.acquire()
         try:
+            # print('begin seeking from fuse')
+            # print('offset is %s'%offset)
+            # import pdb
+            # pdb.set_trace()
+            # print(offset)
+            if (file.tell() != offset):
+                file.seek(offset)
             file.seek(offset)
+            # print('end seeking from fuse')
+            # import traceback
+            # traceback.print_stack()
             file.write(data)
             if self._files_size_written[path][fh.fh] < offset + len(data):
                 self._files_size_written[path][fh.fh] = offset + len(data)
